@@ -1,0 +1,19 @@
+name: dispatch-test
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger pkgcheck-action build
+        uses: actions/github-script@v5
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'assignUser',
+              repo: 'test-repo-b',
+              workflow_id: 'test1.yaml',
+              ref: 'main',
+            });
