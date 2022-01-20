@@ -10,7 +10,7 @@ jobs:
       - name: Trigger pkgcheck-action build
         uses: actions/github-script@v5
         with:
-          github-token: ${{ secrets.DISPATCH_PAT }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: 'assignUser',
