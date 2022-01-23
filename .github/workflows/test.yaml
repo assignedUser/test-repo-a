@@ -11,6 +11,7 @@ jobs:
         run: |
           echo "::add-mask::Mona The Octocat"
           echo "Mona"
-          echo "the"
-          echo "::warning ::Something with a%0A newline!
+          echo "The"
+          echo "Mona the Octocat"
+          echo "::warning ::Something with a%0A newline!"
         shell: bash
