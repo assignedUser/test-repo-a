@@ -17,5 +17,5 @@ jobs:
           echo "Mona"
           echo  "Mona The Octocat"
           echo  Mona the Octocat
-          echo "::warning file=test.R, line=1, endLine=3::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
+          echo "::warning file=test.R,line=1,endLine=3::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
         shell: bash
