@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Trigger pkgcheck-action build
         run: |
-          echo ::add-mask::$SUPER_SECRRET
+          echo ::add-mask::$SUPER_SECRET
           echo "Mona"
           echo  The
           echo  Mona the Octocat
