@@ -2,16 +2,19 @@ name: dispatch-test
 
 on:
   workflow_dispatch:
+  pull_request:
   
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      SUPER_SECRET: "Monat The Octocat"
     steps:
       - name: Trigger pkgcheck-action build
         run: |
-          echo ::add-mask::Mona The Octocat
+          echo ::add-mask::$SUPER_SECRRET
           echo "Mona"
           echo  The
           echo  Mona the Octocat
-          echo "::warning file=test.R line=1 endline=3 ::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
+          echo "::warning file=test.R, line=1, endline=3 ::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
         shell: bash
