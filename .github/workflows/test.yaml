@@ -13,7 +13,7 @@ jobs:
       - run: |
           install.packages("cli")
           cli::cli_alert_success("An Alert!") 
-          print(isatty(stdout())
+          print(isatty(stdout()))
           Sys.setenv(COLORTERM = 'truecolor')
           cli::cli_alert_danger("An Alert!") 
         shell: Rscript {0}
