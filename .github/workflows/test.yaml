@@ -16,6 +16,7 @@ jobs:
           echo "::add-mask::$SUPER_SECRET"
           echo "Mona"
           echo  "Mona The Octocat"
+          echo -e "\033[1m\033[22masdasd%0Aasdasd%0Aasdasd"
           echo  "::notice::\033[1m\033[22masdasd%0Aasdasd%0Aasdasd"
           echo "::warning file=test.R,line=1,endLine=3::Octolog makes it%25 easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
         shell: bash
