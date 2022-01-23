@@ -7,16 +7,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      SUPER_SECRET: "Mona The Octocat"
+    container: ghcr.io/ropensci-review-tools/pkgcheck-action
+
     steps:
       - uses: actions/checkout@v2
-      - name: Trigger pkgcheck-action build
-        run: |
-          echo "::add-mask::$SUPER_SECRET"
-          echo "Mona"
-          echo  "Mona The Octocat"
-          echo -e "\033[1m\033[22masdasd%0Aasdasd%0Aasdasd"
-          echo  "::notice::\033[1m\033[22masdasd%0Aasdasd%0Aasdasd"
-          echo "::warning file=test.R,line=1,endLine=3::Octolog makes it%25 easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
-        shell: bash
+      - run: |
+          options(cli.num_colors = crayon:::truecolor)
+          cli::cli_alert_success("An Alert!") 
+          cli::cli_alert_danger("An Alert!") 
+        shell: Rscript {0}
