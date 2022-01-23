@@ -9,9 +9,9 @@ jobs:
     steps:
       - name: Trigger pkgcheck-action build
         run: |
-          echo "::add-mask::Mona The Octocat"
+          echo ::add-mask::Mona The Octocat
           echo "Mona"
           echo  The
           echo  Mona the Octocat
-          echo "::warning ::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
+          echo "::warning file=test.R line=1 endline=3 ::Octolog makes it easy to create beautiful output in Github Action logs%0A%0A and use workflow commands in R.!"
         shell: bash
