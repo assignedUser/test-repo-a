@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
    
     steps:
+      - id: s1
+        run: >
+         echo "::set-output name=update_readme::
+         `git show --name-only --oneline |
+           grep -c action.yaml |
+           cat`"
       - run: |
-          echo "Ja"
-        shell: bash
+         echo ${{ steps.s1.outputs.update_readme }}
+      
