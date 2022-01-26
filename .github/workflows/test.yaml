@@ -12,10 +12,7 @@ jobs:
     steps:
       - id: s1
         run: >
-         echo "::set-output name=update_readme::
-         `git show --name-only --oneline |
-           grep -c action.yaml |
-           cat`"
+         echo "::set-output name=update_readme::asdasd%20%22asdasda%22asdasd%25%20asdasd%20%0Asadasdas"
       - run: |
          echo ${{ steps.s1.outputs.update_readme }}
       
