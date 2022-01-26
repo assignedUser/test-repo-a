@@ -14,5 +14,5 @@ jobs:
         run: >
          echo "::set-output name=update_readme::asdasd%20%22asdasda%22asdasd%25%20asdasd%20%0Asadasdas"
       - run: |
-         echo ${{ steps.s1.outputs.update_readme }}
+         echo "${{ steps.s1.outputs.update_readme }}"
       
