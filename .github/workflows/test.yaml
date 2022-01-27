@@ -6,8 +6,7 @@ on:
   
 jobs:
   test:
-    if: 1
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
    
     steps:
       - id: s1
@@ -15,4 +14,12 @@ jobs:
          echo "::set-output name=update_readme::asdasd%20%22asdasda%22asdasd%25%20asdasd%20%0Asadasdas"
       - run: |
          echo "${{ steps.s1.outputs.update_readme }}"
-      
+  test2:
+    runs-on: macos-latest
+   
+    steps:
+      - id: s1
+        run: >
+         echo "::set-output name=update_readme::asdasd%20%22asdasda%22asdasd%25%20asdasd%20%0Asadasdas"
+      - run: |
+         echo "${{ steps.s1.outputs.update_readme }}"
