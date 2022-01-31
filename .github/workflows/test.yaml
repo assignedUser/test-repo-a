@@ -13,8 +13,8 @@ jobs:
     steps:
       - id: s1
         run: |
-         "/a/new/path" | Add-Content -path $GITHUB_PATH;
-         cat $GITHUB_PATH;
+         "/a/new/path" | Add-Content -path $env:GITHUB_PATH;
+         cat $env:GITHUB_PATH;
       - run: echo $PATH 
  
 
