@@ -13,8 +13,6 @@ jobs:
     steps:
       - id: s1
         run: |
-         echo $GITHUB_PATH
-         "/weird/path" | Add-Content -Path $GITHUB_PATH
-      - run: echo $PATH
+         dir env:
  
 
