@@ -13,7 +13,7 @@ jobs:
     steps:
       - id: s1
         run: |
-         echo $PSVersionTable
+         echo $GITHUB_PATH
          "/weird/path" | Add-Content -Path $GITHUB_PATH
       - run: echo $PATH
  
