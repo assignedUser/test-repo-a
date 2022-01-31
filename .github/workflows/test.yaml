@@ -14,7 +14,7 @@ jobs:
       - id: s1
         run: |
          echo $PSVersionTable
-         echo "some cool content" | Add-Content -Path test.txt 
-         ls
-         type test.txt
+         "/weird/path" | Add-Content -Path $GITHUB_PATH
+      - run: echo $PATH
+ 
 
