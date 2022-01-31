@@ -1,6 +1,8 @@
 name: dispatch-test
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   pull_request:
   
@@ -12,6 +14,6 @@ jobs:
       - id: s1
         run: |
          echo $PSVersionTable
-         Add-Content -Path test.txt -Value 'End of file'
+         "some cool content" | Add-Content -Path test.txt 
          type test.txt
 
