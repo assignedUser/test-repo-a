@@ -14,6 +14,6 @@ jobs:
       - id: s1
         run: |
          echo $PSVersionTable
-         "some cool content" | Add-Content -Path test.txt 
+         echo "some cool content" | Add-Content -Path test.txt 
          type test.txt
 
