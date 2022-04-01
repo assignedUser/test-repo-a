@@ -20,9 +20,9 @@ jobs:
                 repo: "test-repo-a",
                 issue_number: 2,
                 body: 
-                  "@assignUser It's time to renew your 'RRT_TOKEN'
+                  `@assignUser It's time to renew your 'RRT_TOKEN'
                   - grant both repo and workflow access
-                  - copy token to `pkgcheck-action` repo secrets"
+                  - copy token to \`pkgcheck-action\` repo secrets`
               })
 
 
