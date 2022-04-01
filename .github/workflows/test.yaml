@@ -9,7 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-   
+    permissions:
+     issues: write
     steps:
        - name: Create Issue Comment
          uses: actions/github-script@v5
