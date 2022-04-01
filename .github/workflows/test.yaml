@@ -8,13 +8,21 @@ on:
   
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
    
     steps:
-      - id: s1
-        run: |
-         "/a/new/path" | Add-Content -path $env:GITHUB_PATH;
-         cat $env:GITHUB_PATH;
-      - run: echo $env:PATH 
- 
+       - name: Create Issue Comment
+         uses: actions/github-script@v5
+         with:
+            script: |
+              github.rest.issues.createComment({
+                owner: "assignUser",
+                repo: "test-repo-a",
+                issue_number: 2,
+                body: |
+                  @assignUser It's time to renew your 'RRT_TOKEN'
+                  - grant both repo and workflow access
+                  - copy token to `pkgcheck-action` repo secrets
+              })
+
 
