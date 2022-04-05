@@ -13,4 +13,5 @@ jobs:
        - run: echo "::warning file=R\lint_me.R,line=3,col=1,Put spaces around all infix operators."
        - run: echo "::warning file=R\lint_me.R,line=3,col=1::Put spaces around all infix operators."
        - run: echo "::warning file=R/lint_me.R,line=3,col=1::Put spaces around all infix operators."
+       - run: echo "::warning file=R\lint_me.R,line=3,col=1,Put spaces around all infix operators.::"
        
