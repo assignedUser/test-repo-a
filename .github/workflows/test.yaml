@@ -10,6 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-       - run: echo "head_ref: ${{ github.head_ref || 2}}"
-       - run: echo "ref: ${{ github.ref || 2}}"
+       - run: echo 'head ref ${{ github.head_ref || 2}}'
+       - run: echo "ref ${{ github.ref || 2}}"
        
