@@ -10,6 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-       - run: echo ${{ '' || 2}}
-
+       - run: echo ${{ github.head_ref || 2}}
+       - run: echo ${{ github.ref || 2}}
        
