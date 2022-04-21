@@ -81,7 +81,7 @@ jobs:
       # In order to prevent link time warnings (which may turn out to be errors)
       # we compile OpenSSL separately for the two architectures and merge the
       # binaries into universal2 ones using `lipo`.
-      - nam: cat logs
+      - name: cat logs
         run: cat /Users/github/actions-runner/_work/crossbow/crossbow/vcpkg/buildtrees/abseil/install-universal2-osx-static-release-rel-out.log
         if: always()
         
