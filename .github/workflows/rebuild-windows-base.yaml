@@ -31,7 +31,7 @@ jobs:
       # `archery build python-wheel-windows-vs2017`
       # note that we don't run docker build since there wouldn't be a cache hit
       # and rebuilding the dependencies takes a fair amount of time
-      REPO: ghcr.io/assignUser/test-repo-a
+      REPO: ghcr.io/assignuser/test-repo-a
 
     steps:
       - name: Checkout Arrow
