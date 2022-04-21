@@ -24,8 +24,8 @@ jobs:
       packages: write
     env:
       # Turned on by default in .env but Windows does not support Buildkite
-      BUILDKIT_INLINE_CACHE: 1
-      DOCKER_BUILDKIT: 1
+      # BUILDKIT_INLINE_CACHE: 1
+      DOCKER_BUILDKIT: 0
       # archery uses this environment variable
       PYTHON: "3.10"
       # this is a private repository at the moment (mostly because of licensing
@@ -57,12 +57,13 @@ jobs:
         shell: bash
         run: pip install -e arrow/dev/archery[all]
 
-      - name: Fix .env
-        shell: pwsh
-        run: (Get-Content arrow/.env) -Replace '^DOCKER_BUILDKIT=1', 'DOCKER_BUILDKIT=0' -Replace '^REPO=.+$', 'REPO=${{ env.REPO }}' | Set-Content arrow/.env
+      # - name: Fix .env
+      #   shell: pwsh
+      #   run: (Get-Content arrow/.env) -Replace '^DOCKER_BUILDKIT=1', 'DOCKER_BUILDKIT=0' -Replace '^REPO=.+$', 'REPO=${{ env.REPO }}' | Set-Content arrow/.env
 
       - name: Build image
-        run: $Env:PYTHON = "${{ env.PYTHON }}; archery docker build --no-pull python-wheel-windows-vs2017
+        shell: cmd
+        run: archery docker build --no-pull python-wheel-windows-vs2017
 
       - name: Push Image
         shell: cmd
