@@ -23,6 +23,9 @@ jobs:
       contents: read
       packages: write
     env:
+      # Turned on by default in .env but Windows does not support Buildkite
+      BUILDKIT_INLINE_CACHE: 1
+      DOCKER_BUILDKIT: 1
       # archery uses this environment variable
       PYTHON: "3.10"
       # this is a private repository at the moment (mostly because of licensing
