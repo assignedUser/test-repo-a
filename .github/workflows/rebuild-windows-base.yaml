@@ -40,10 +40,9 @@ jobs:
       - name: Checkout Arrow
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          repository: ${{ github.event.inputs.arrow-repo || 'apache/arrow'}}
           path: arrow
-          repository: apache/arrow
-          submodules: recursive
+          ref: ${{ github.event.inputs.arrow-ref || 'master'}}
 
       - name: Login to GitHub Container Registry
         shell: bash
@@ -63,8 +62,16 @@ jobs:
 
       - name: Build image
         shell: cmd
-        run: archery docker build --no-pull python-wheel-windows-vs2017
+        run: |
+          set PYTHON=3.7&& archery docker build --no-pull python-wheel-windows-vs2017
+          set PYTHON=3.8&& archery docker build --no-pull python-wheel-windows-vs2017
+          set PYTHON=3.9&& archery docker build --no-pull python-wheel-windows-vs2017
+          set PYTHON=3.10&& archery docker build --no-pull python-wheel-windows-vs2017
 
       - name: Push Image
         shell: cmd
-        run: archery docker push python-wheel-windows-vs2017
+        run: |
+          set PYTHON=3.7&& archery docker push python-wheel-windows-vs2017
+          set PYTHON=3.8&& archery docker push python-wheel-windows-vs2017
+          set PYTHON=3.9&& archery docker push python-wheel-windows-vs2017
+          set PYTHON=3.10&& archery docker push python-wheel-windows-vs2017
