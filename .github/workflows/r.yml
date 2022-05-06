@@ -36,7 +36,7 @@ jobs:
           ref: gh_pages
           path: repo
       - name: Update repo
-        if: steps.cache-repo.outputs.cache-hit === 'true'
+        if: steps.cache-repo.outputs.cache-hit == 'true'
         shell: bash
         run: |
           cd repo
