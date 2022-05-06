@@ -6,26 +6,19 @@ on:
       version: 
         description: 'Version string'
         required: true
-        default: '9999'
-
-permissions:
-  pages: write
+        default: '123'
 
 jobs:
   source:
     name: Source Packages
     runs-on: ubuntu-latest
     steps:
-      - name: Configure git user
-        shell: bash
-        run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
       - name: Checkout arrow
         uses: actions/checkout@v3
         with:
           repository: apache/arrow
           path: arrow
+
       - name: Modify version
         shell: bash
         env:
@@ -36,12 +29,20 @@ jobs:
             's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${DATE}"'/' \
             DESCRIPTION
           rm -f DESCRIPTION.bak
+
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"$(git rev-list -n 1 HEAD)"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
       - name: Cache repo
         uses: actions/cache@v3
         id: cache-repo
         with:
           path: repo
           key: test
+
       - name: Checkout package repo
         if: steps.cache-repo.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
@@ -49,20 +50,24 @@ jobs:
           repository: assignUser/test-repo-a
           ref: gh_pages
           path: repo
+
       - name: Update repo
         if: steps.cache-repo.outputs.cache-hit == 'true'
         shell: bash
         run: |
           cd repo
           git pull
+
       - uses: r-lib/actions/setup-r@v2
         with:
           install-r: false
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: |
             github::eddelbuettel/drat
             any::git2r
+
       - name: Build R source package
         shell: bash
         run: |
@@ -70,6 +75,14 @@ jobs:
           # Copy in the Arrow C++ source
           make sync-cpp
           R CMD build --no-build-vignettes .
+
+      - name: Configure git user
+        shell: bash
+        run: |
+          git config --global -l
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
       - name: Update repo
         shell: Rscript {0}
         run: |
