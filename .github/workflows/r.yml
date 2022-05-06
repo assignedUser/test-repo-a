@@ -1,6 +1,8 @@
 name: Nightly gh_pages test
 
 on: 
+  push: 
+    branches: ['main']
   workflow_dispatch:
     inputs:
       version: 
@@ -13,13 +15,15 @@ jobs:
     name: Source Packages
     runs-on: ubuntu-latest
     steps:
-      - run: ls -la
+      - name: debug
+        run: ls -la
       - name: Checkout arrow
         uses: actions/checkout@v3
         with:
           repository: apache/arrow
           path: arrow
-      - run: ls -la
+      - name: debug
+        run: ls -la
       - name: Modify version
         shell: bash
         env:
@@ -43,7 +47,8 @@ jobs:
         with:
           path: repo
           key: test
-
+      - name: debug
+        run: ls -la
       - name: Checkout package repo
         if: steps.cache-repo.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
