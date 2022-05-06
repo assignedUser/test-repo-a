@@ -181,7 +181,7 @@ jobs:
           mv -f $PKG_FILE $REPO_PATH
       
       - name: Commit & Push
-        id: nightly-src-pkg
+        id: nightly-nix-cpp
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -263,7 +263,7 @@ jobs:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
       - name: Commit & Push
-        id: nightly-src-pkg
+        id: nightly-win-cpp
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -282,6 +282,106 @@ jobs:
           git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
           git push
       - run: ls -lR --block-size=M repo
+  r-packages:
+    if: true
+    needs: [source, windows-cpp]
+    name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - windows-latest
+          # This is newer than what CRAN builds on, but Travis is no longer an option for us, so...
+          - macos-10.15
+        r_version:
+          - { rtools: 40, r: "4.1" }
+          - { rtools: 42, r: "4.2" }
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
+      - name: Cache repo
+        uses: actions/cache@v3
+        id: cache-repo
+        with:
+          path: repo
+          key: test
 
+      - name: Checkout package repo
+        if: steps.cache-repo.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: repo
 
+      - name: Update repo
+        if: steps.cache-repo.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          cd repo
+          git pull origin gh-pages
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r_version.r }}
+          rtools-version: ${{ matrix.r_version.rtools }}
+          Ncpus: 2
+      - name: Build and insert
+        shell: Rscript {0}
+        run: |
+          on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
+
+          # Install dependencies by installing (yesterday's) binary, then removing it
+          install.packages(c("arrow", "cpp11"),
+            type = "binary",
+            repos = c("https://assignUser.github.io/test-repo-a", "https://cloud.r-project.org")
+          )
+          remove.packages("arrow")
+
+          # Build
+          Sys.setenv(MAKEFLAGS = paste0("-j", parallel::detectCores()))
+          INSTALL_opts <- "--build"
+          if (!on_windows) {
+            # Windows doesn't support the --strip arg
+            INSTALL_opts <- c(INSTALL_opts, "--strip")
+          }
+
+          install.packages("arrow",
+            type = "source",
+            repos = "https://assignUser.github.io/test-repo-a",
+            INSTALL_opts = INSTALL_opts
+          )
+
+          # Test
+          library(arrow)
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+          # Upload
+          pkg <- list.files(".", "^arrow_", full.names = TRUE)
+          stopifnot(length(pkg) == 1)
+          drat::insertPackage(pkg,
+                              repodir = "${{ github.workspace }}/repo",
+                              action = "prune",
+                              location = "gh-pages"
+          )        
+      - name: Commit & Push
+        id: nightly-bin-pkg
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
+          cd build
+          
+          mv arrow-$VERSION.zip ${{ github.workspace }}/repo/libarrow/bin/windows
+          cd ${{ github.workspace }}/repo
+          
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          gh auth setup-git -h github.com
+
+          git add -A
+          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
+          git push
+      - run: ls -lR --block-size=M repo
