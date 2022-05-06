@@ -6,8 +6,11 @@ on:
       version: 
         description: 'Version string'
         required: true
-        default: '9999'
+        default: '9999'\
 
+permissions:
+  pages: write
+  
 jobs:
   source:
     name: Source Packages
@@ -43,6 +46,7 @@ jobs:
         if: steps.cache-repo.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
         with:
+          repository: assignUser/test-repo-a
           ref: gh_pages
           path: repo
       - name: Update repo
