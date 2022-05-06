@@ -98,7 +98,7 @@ jobs:
           gh auth setup-git -h github.com
 
           git add -A
-          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
+          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}" || echo "Nothing to commit!"
           git push
   linux-cpp:
     name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
