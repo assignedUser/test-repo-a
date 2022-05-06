@@ -178,7 +178,7 @@ jobs:
           export REPO_PATH=${{ github.workspace }}/repo/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
 
           mkdir -p $REPO_PATH
-          mv -f $PKG_FILE $REPO_PATH
+          sudo mv -f $PKG_FILE $REPO_PATH
       
       - name: Commit & Push
         id: nightly-nix-cpp
@@ -271,8 +271,8 @@ jobs:
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
           
-          mv arrow-$VERSION.zip ${{ github.workspace }}/repo/libarrow/bin/windows
-          cd ${{ github.workspace }}/repo
+          sudo mv arrow-$VERSION.zip ../repo/libarrow/bin/windows
+          cd ../repo
           
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
@@ -283,7 +283,6 @@ jobs:
           git push
       - run: ls -lR --block-size=M repo
   r-packages:
-    if: true
     needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
@@ -374,8 +373,8 @@ jobs:
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
           
-          mv arrow-$VERSION.zip ${{ github.workspace }}/repo/libarrow/bin/windows
-          cd ${{ github.workspace }}/repo
+          sudo mv arrow-$VERSION.zip ../repo/libarrow/bin/windows
+          cd ../repo
           
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
