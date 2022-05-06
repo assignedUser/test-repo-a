@@ -64,7 +64,6 @@ jobs:
         with:
           packages: |
             github::eddelbuettel/drat
-            any::git2r
 
       - name: Build R source package
         shell: bash
@@ -92,11 +91,12 @@ jobs:
                               location = "gh-pages"
           )
       - name: Commit & Push
+      - id: nightly-src-pkg
         shell: bash
         run: |
           cd repo
           git commit . -m"Nightly Src Package - ${{ github.event.inputs.version }}"
-          git push
+          git push https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/assignUser/test-repo-a.git" gh-pages
       - run: ls -lR --block-size=M repo
   
 
