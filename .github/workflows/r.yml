@@ -83,7 +83,7 @@ jobs:
       - name: Update repo
         shell: Rscript {0}
         run: |
-          pkg <- list.files("arrow/r", "arrow-.+\\.tar\\.gz")
+          pkg <- list.files("arrow/r", "arrow_.+\\.tar\\.gz")
           stopifnot(length(pkg) == 1)
           drat::insertPackage(pkg,
                               repodir = "./repo",
