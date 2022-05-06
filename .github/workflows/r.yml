@@ -13,12 +13,13 @@ jobs:
     name: Source Packages
     runs-on: ubuntu-latest
     steps:
+      - run: ls -la
       - name: Checkout arrow
         uses: actions/checkout@v3
         with:
           repository: apache/arrow
           path: arrow
-
+      - run: ls -la
       - name: Modify version
         shell: bash
         env:
