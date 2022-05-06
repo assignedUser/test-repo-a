@@ -23,6 +23,16 @@ jobs:
         with:
           repository: apache/arrow
           path: arrow
+      - name: Modify version
+        shell: bash
+        env:
+          DATE: ${{ github.event.inputs.version }}
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${DATE}"'/' \
+            DESCRIPTION
+          rm -f DESCRIPTION.bak
       - name: Cache repo
         uses: actions/cache@v3
         id: cache-repo
