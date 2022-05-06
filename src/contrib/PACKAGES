@@ -1,5 +1,5 @@
 Package: arrow
-Version: 8.0.0.20220506
+Version: 8.0.0.20220507
 Depends: R (>= 3.4)
 Imports: assertthat, bit64 (>= 0.9-7), methods, purrr, R6, rlang,
         stats, tidyselect (>= 1.0.0), utils, vctrs
@@ -8,5 +8,5 @@ Suggests: DBI, dbplyr, decor, distro, dplyr, duckdb (>= 0.2.8), hms,
         knitr, lubridate, pkgload, reticulate, rmarkdown, stringi,
         stringr, testthat (>= 3.1.0), tibble, tzdb, withr
 License: Apache License (>= 2.0)
-MD5sum: f952ad28062ff207bcb81719e8bf0ae3
+MD5sum: 78817892e76aed188cd597c613aaf75b
 NeedsCompilation: yes
