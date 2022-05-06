@@ -263,7 +263,6 @@ jobs:
         env:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
-      - name: Upload
       - name: Commit & Push
         id: nightly-src-pkg
         shell: bash
