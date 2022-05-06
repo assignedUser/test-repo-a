@@ -28,6 +28,7 @@ jobs:
           sed -i.bak -E -e \
             's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${{ github.event.inputs.version }}"'/' \
             DESCRIPTION
+          head DESCRIPTION
           rm -f DESCRIPTION.bak
 
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
@@ -93,5 +94,5 @@ jobs:
                               action = "prune",
                               location = "gh-pages"
           )
-
+  
 
