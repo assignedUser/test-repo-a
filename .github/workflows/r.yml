@@ -86,11 +86,12 @@ jobs:
           pkg <- list.files("arrow/r", "arrow_.+\\.tar\\.gz", full.names = TRUE)
           stopifnot(length(pkg) == 1)
           drat::insertPackage(pkg,
-                              repodir = "${{ github.workspace}}/repo",
+                              repodir = "${{ github.workspace }}/repo",
                               commit = TRUE,
                               action = "prune",
                               location = "gh-pages"
           )
+          git2r::push()
       - run: ls -lR --block-size=M repo
   
 
