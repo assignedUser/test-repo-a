@@ -1,0 +1,74 @@
+# The environment variables referenced from this docker-compose can be set by
+# defining them before running docker-compose.
+#
+# The defaults are set in the .env file.
+
+version: '3.5'
+
+services:
+  ubuntu:
+    # Usage:
+    #   VERSION=16.04 docker-compose build ubuntu
+    #   VERSION=16.04 docker-compose run ubuntu
+    image: ursalab/ubuntu-${VERSION}
+    build:
+      context: .
+      dockerfile: apt.Dockerfile
+      cache_from:
+        - ursalab/ubuntu-${VERSION}
+      args:
+        base: ubuntu:${VERSION}
+    shm_size: 2G
+    volumes:
+      - ./arrow:/arrow:delegated
+    environment:
+      ARROW_DEPENDENCY_SOUCE: "BUNDLED"
+      LIBARROW_MINIMAL: "false"
+    command: >
+      /bin/bash -c "
+        cd /arrow && r/inst/build_arrow_static.sh"
+
+  debian:
+    # Usage:
+    #   VERSION=9 docker-compose build debian
+    #   VERSION=9 docker-compose run debian
+    image: ursalab/debian-${VERSION}
+    build:
+      context: .
+      dockerfile: apt.Dockerfile
+      cache_from:
+        - ursalab/debian-${VERSION}
+      args:
+        base: debian:${VERSION}
+    shm_size: 2G
+    volumes:
+      - ./arrow:/arrow:delegated
+    environment:
+      ARROW_DEPENDENCY_SOUCE: "BUNDLED"
+      LIBARROW_MINIMAL: "false"
+    command: >
+      /bin/bash -c "
+        cd /arrow && r/inst/build_arrow_static.sh"
+
+  centos:
+    # Usage:
+    #   VERSION=7 docker-compose build centos
+    #   VERSION=7 docker-compose run centos
+    image: ursalab/centos-${VERSION}
+    build:
+      context: .
+      dockerfile: yum.Dockerfile
+      cache_from:
+        - ursalab/centos-${VERSION}
+      args:
+        base: centos:centos${VERSION}
+    shm_size: 2G
+    volumes:
+      - ./arrow:/arrow:delegated
+    environment:
+      ARROW_DEPENDENCY_SOUCE: "BUNDLED"
+      LIBARROW_MINIMAL: "false"
+    command: >
+      /bin/bash -c "
+        if grep -q -i -e 'centos.* 7' /etc/os-release; then export ARROW_S3=OFF ARROW_MIMALLOC=OFF; fi &&
+        cd /arrow && r/inst/build_arrow_static.sh"

@@ -100,6 +100,190 @@ jobs:
           git add -A
           git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
           git push
+  linux-cpp:
+    name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu, version: "18.04", r: "3.6" }
+          - { os: centos, version: "7" }
+    env:
+      VERSION: ${{ matrix.config.version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cache repo
+        uses: actions/cache@v3
+        id: cache-repo
+        with:
+          path: repo
+          key: test
+
+      - name: Checkout package repo
+        if: steps.cache-repo.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: repo
+
+      - name: Update repo
+        if: steps.cache-repo.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          cd repo
+          git pull origin gh-pages
+
+      - name: Checkout arrow
+        uses: actions/checkout@v3
+        with:
+          repository: apache/arrow
+          path: arrow
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${{ github.event.inputs.version }}"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"$(git rev-list -n 1 HEAD)"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+      - name: Build libarrow
+        shell: bash
+        run: |
+          cd linux
+          docker-compose build ${{ matrix.config.os }}
+          docker-compose run ${{ matrix.config.os }}
+
+      - name: Bundle and upload
+        shell: bash
+        run: |
+          cd arrow/r
+          VERSION=$(grep ^Version DESCRIPTION | sed s/Version:\ //)
+          export PKG_FILE="arrow-${VERSION}.zip"
+          cd libarrow/dist
+          # These files were created by the docker user so we have to sudo to get them
+          sudo -E zip -r $PKG_FILE lib/ include/
+          export REPO_PATH=${{ github.workspace }}/repo/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
+
+          mkdir -p $REPO_PATH
+          mv -f $PKG_FILE $REPO_PATH
+      
+      - name: Commit & Push
+        id: nightly-src-pkg
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd repo
+          
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          gh auth setup-git -h github.com
+
+          git add -A
+          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
+          git push
       - run: ls -lR --block-size=M repo
-  
+
+  windows-cpp:
+    name: C++ Binary Windows RTools (40 only)
+    needs: setup
+    runs-on: windows-latest
+    steps:
+      - run: git config --global core.autocrlf false
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout arrow
+        uses: actions/checkout@v3
+        with:
+          repository: apache/arrow
+          path: arrow
+
+      - name: Cache repo
+        uses: actions/cache@v3
+        id: cache-repo
+        with:
+          path: repo
+          key: test
+
+      - name: Checkout package repo
+        if: steps.cache-repo.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: repo
+
+      - name: Update repo
+        if: steps.cache-repo.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          cd repo
+          git pull origin gh-pages
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${{ github.event.inputs.version }}"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"$(git rev-list -n 1 HEAD)"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          rtools-version: 40
+          r-version: "4.0"
+          Ncpus: 2
+
+      - name: Build Arrow C++ with rtools40
+        shell: bash
+        env:
+          ARROW_HOME: "arrow"
+        run: arrow/ci/scripts/r_windows_build.sh
+      - name: Upload
+      - name: Commit & Push
+        id: nightly-src-pkg
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
+          cd build
+          
+          mv arrow-$VERSION.zip ${{ github.workspace }}/repo/libarrow/bin/windows
+          cd ${{ github.workspace }}/repo
+          
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          gh auth setup-git -h github.com
+
+          git add -A
+          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
+          git push
+      - run: ls -lR --block-size=M repo
+
+
 
