@@ -62,6 +62,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          dependencies: '"hard"'
+          cache: 2
           packages: |
             github::eddelbuettel/drat
 
@@ -72,13 +74,6 @@ jobs:
           # Copy in the Arrow C++ source
           make sync-cpp
           R CMD build --no-build-vignettes .
-
-      - name: Configure git user
-        shell: bash
-        run: |
-          cd repo
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
 
       - name: Insert src package
         shell: Rscript {0}
@@ -91,12 +86,20 @@ jobs:
                               location = "gh-pages"
           )
       - name: Commit & Push
-      - id: nightly-src-pkg
+        id: nightly-src-pkg
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd repo
-          git commit . -m"Nightly Src Package - ${{ github.event.inputs.version }}"
-          git push https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/assignUser/test-repo-a.git" gh-pages
+          
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          gh auth setup-git -h github.com
+
+          git add -A
+          git commit -m"Nightly Src Package - ${{ github.event.inputs.version }}"
+          git push
       - run: ls -lR --block-size=M repo
   
 
