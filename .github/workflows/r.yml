@@ -80,17 +80,17 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      - name: Update repo
+      - name: Upload source package
         shell: Rscript {0}
         run: |
           pkg <- list.files("arrow/r", "arrow_.+\\.tar\\.gz", full.names = TRUE)
           stopifnot(length(pkg) == 1)
           drat::insertPackage(pkg,
-                              repodir = "./repo",
+                              repodir = "${{ github.workspace}}/repo",
                               commit = TRUE,
                               action = "prune",
                               location = "gh-pages"
           )
-      - run: ls -lR repo
+      - run: ls -lR --block-size=M repo
   
 
