@@ -20,7 +20,7 @@ services:
         base: ubuntu:${VERSION}
     shm_size: 2G
     volumes:
-      - ./arrow:/arrow:delegated
+      - ../arrow:/arrow:delegated
     environment:
       ARROW_DEPENDENCY_SOUCE: "BUNDLED"
       LIBARROW_MINIMAL: "false"
@@ -42,7 +42,7 @@ services:
         base: debian:${VERSION}
     shm_size: 2G
     volumes:
-      - ./arrow:/arrow:delegated
+      - ../arrow:/arrow:delegated
     environment:
       ARROW_DEPENDENCY_SOUCE: "BUNDLED"
       LIBARROW_MINIMAL: "false"
@@ -64,7 +64,7 @@ services:
         base: centos:centos${VERSION}
     shm_size: 2G
     volumes:
-      - ./arrow:/arrow:delegated
+      - ../arrow:/arrow:delegated
     environment:
       ARROW_DEPENDENCY_SOUCE: "BUNDLED"
       LIBARROW_MINIMAL: "false"
