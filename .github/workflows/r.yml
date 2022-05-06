@@ -1,8 +1,6 @@
 name: Nightly gh_pages test
 
-on: 
-  push: 
-    branches: ['main']
+on:
   workflow_dispatch:
     inputs:
       version: 
@@ -79,7 +77,6 @@ jobs:
       - name: Configure git user
         shell: bash
         run: |
-          git config --global -l
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
