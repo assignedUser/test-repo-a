@@ -177,7 +177,7 @@ jobs:
           sudo -E zip -r $PKG_FILE lib/ include/
           export REPO_PATH=${{ github.workspace }}/repo/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
 
-          mkdir -p $REPO_PATH
+          sudo mkdir -p $REPO_PATH
           sudo mv -f $PKG_FILE $REPO_PATH
       
       - name: Commit & Push
@@ -271,6 +271,7 @@ jobs:
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
           
+          sudo mkdir -p ../repo/libarrow/bin/windows
           sudo mv arrow-$VERSION.zip ../repo/libarrow/bin/windows
           cd ../repo
           
@@ -373,6 +374,7 @@ jobs:
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
           
+          sudo mkdir -p ../repo/libarrow/bin/windows
           sudo mv arrow-$VERSION.zip ../repo/libarrow/bin/windows
           cd ../repo
           
