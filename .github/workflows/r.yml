@@ -6,11 +6,11 @@ on:
       version: 
         description: 'Version string'
         required: true
-        default: '9999'\
+        default: '9999'
 
 permissions:
   pages: write
-  
+
 jobs:
   source:
     name: Source Packages
