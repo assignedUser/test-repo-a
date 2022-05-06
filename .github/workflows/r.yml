@@ -199,7 +199,6 @@ jobs:
 
   windows-cpp:
     name: C++ Binary Windows RTools (40 only)
-    needs: setup
     runs-on: windows-latest
     steps:
       - run: git config --global core.autocrlf false
