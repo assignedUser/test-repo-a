@@ -8,5 +8,5 @@ Suggests: DBI, dbplyr, decor, distro, dplyr, duckdb (>= 0.2.8), hms,
         knitr, lubridate, pkgload, reticulate, rmarkdown, stringi,
         stringr, testthat (>= 3.1.0), tibble, tzdb, withr
 License: Apache License (>= 2.0)
-MD5sum: 8963c32ce8f636f23da595c364ce8564
+MD5sum: 9f2992a3a79c75feb048aa73d41b7f1e
 NeedsCompilation: yes
