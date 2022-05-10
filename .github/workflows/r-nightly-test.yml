@@ -1,0 +1,150 @@
+################################################################################
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+
+# NOTE: must set "Crossbow" as name to have the badge links working in the
+# github comment reports!
+name: Crossbow
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "*-github-*"
+
+
+jobs:
+  source:
+    name: Source Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Arrow
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: arrow
+          repository: assignUser/arrow
+          ref: 6706cdeed9ce487f831fe389ed07a418bf6b723f
+          submodules: recursive
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"6706cdeed9ce487f831fe389ed07a418bf6b723f"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+  
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          install-r: false
+
+      - name: Build R source package
+        shell: bash
+        run: |
+          cd arrow/r
+          # Copy in the Arrow C++ source
+          make sync-cpp
+          R CMD build --no-build-vignettes .
+      - name: Upload binary artifact (temp)
+        uses: actions/upload-artifact@v3
+        with:
+          name: r-src-pkg
+          path: arrow/r/arrow_*20220510.tar.gz
+      #TODO: update repo files & upload package
+
+linux-cpp:
+    name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu, version: "18.04" }
+          - { os: centos, version: "7" }
+    env:
+      UBUNTU: ${{ matrix.config.version }}
+      R: 3.6
+    steps:
+      - name: Checkout Arrow
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: arrow
+          repository: assignUser/arrow
+          ref: 6706cdeed9ce487f831fe389ed07a418bf6b723f
+          submodules: recursive
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"6706cdeed9ce487f831fe389ed07a418bf6b723f"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          cache: 'pip'
+          python-version: 3.8
+      - name: Install Archery
+        shell: bash
+        run: pip install -e arrow/dev/archery[all]
+
+      - name: Build libarrow
+        shell: bash
+        run: |
+          sudo sysctl -w kernel.core_pattern="core.%e.%p"
+          ulimit -c unlimited
+          archery docker run  ${{ matrix.config.os}}-cpp-static
+      - name: Bundle and upload
+        shell: bash
+        run: |
+          cd arrow/r
+          VERSION=$(grep ^Version DESCRIPTION | sed s/Version:\ //)
+          export PKG_FILE="arrow-${VERSION}.zip"
+          cd libarrow/dist
+          # These files were created by the docker user so we have to sudo to get them
+          sudo -E zip -r $PKG_FILE lib/ include/
+          export REPO_PATH=${{ github.workspace }}/repo/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
+
+          #sudo mkdir -p $REPO_PATH
+          #sudo mv -f $PKG_FILE $REPO_PATH
+      - name: Upload binary artifact (temp)
+        uses: actions/upload-artifact@v3
+        with:
+          name: r-${{ matrix.config.os}}-libarrow
+          path: arrow/r/libarrow/dist/arrow-*20220510.zip
+        #TODO:  upload binary
+
