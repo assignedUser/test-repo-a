@@ -26,6 +26,7 @@ on:
   push:
     branches:
       - "*-github-*"
+
 jobs:
   source:
     name: Source Package
@@ -147,3 +148,139 @@ jobs:
           name: r-${{ matrix.config.os}}-libarrow
           path: arrow/r/libarrow/dist/arrow-*20220510.zip
         #TODO:  upload binary
+
+  windows-cpp:
+    name: C++ Binary Windows RTools (40 only)
+    runs-on: windows-latest
+    steps:
+      - run: git config --global core.autocrlf false
+      - name: Checkout Arrow
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: arrow
+          repository: assignUser/arrow
+          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
+          submodules: recursive
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          rtools-version: 40
+          r-version: "4.0"
+          Ncpus: 2
+
+      - name: Build Arrow C++ with rtools40
+        shell: bash
+        env:
+          ARROW_HOME: "arrow"
+        run: arrow/ci/scripts/r_windows_build.sh
+      - name: Upload binary artifact (temp)
+        uses: actions/upload-artifact@v3
+        with:
+          name: r-windows-libarrow
+          path: build/arrow-*20220510.zip 
+        #TODO:  upload binary
+  r-packages:
+    if: true
+    needs: [source, windows-cpp]
+    name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - windows-latest
+          # This is newer than what CRAN builds on, but Travis is no longer an option for us, so...
+          - macos-10.15
+        r_version:
+          - { rtools: 40, r: "4.1" }
+          - { rtools: 42, r: "4.2" }
+    steps:
+      - name: Checkout Arrow
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: arrow
+          repository: assignUser/arrow
+          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
+          submodules: recursive
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r_version.r }}
+          rtools-version: ${{ matrix.r_version.rtools }}
+          Ncpus: 2
+      - name: Download src-pkg
+        uses: actions/download-artifact@v3
+        with:
+          name: r-src-pkg
+      - name: Build Binary
+        shell: Rscript {0}
+        run: |
+          on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
+
+          # Install dependencies by installing (yesterday's) binary, then removing it
+          install.packages(c("arrow", "cpp11"),
+            type = "binary",
+            repos = c("https://arrow-r-nightly.s3.amazonaws.com", "https://cloud.r-project.org")
+          )
+          remove.packages("arrow")
+
+          # Build
+          Sys.setenv(MAKEFLAGS = paste0("-j", parallel::detectCores()))
+          INSTALL_opts <- "--build"
+          if (!on_windows) {
+            # Windows doesn't support the --strip arg
+            INSTALL_opts <- c(INSTALL_opts, "--strip")
+          }
+          install.packages(
+            dir(pattern = "^arrow_.+20220510.tar.gz")[[1]],
+            type = "source",
+            repos = NULL,
+            #repos = "https://arrow-r-nightly.s3.amazonaws.com",
+            INSTALL_opts = INSTALL_opts
+          )
+
+          # Test
+          library(arrow)
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))  
+      - name: Upload binary artifact (temp)
+        uses: actions/upload-artifact@v3
+        with:
+          name: r-${{ matrix.config.os}}-pkg
+          path: arrow_*20220510.zip 
+      #TODO: upload binary and update repo
+
