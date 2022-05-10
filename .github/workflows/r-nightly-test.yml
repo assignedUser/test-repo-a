@@ -75,7 +75,7 @@ jobs:
           path: arrow/r/arrow_*20220510.tar.gz
       #TODO: update repo files & upload package
 
-linux-cpp:
+  linux-cpp:
     name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
     runs-on: ubuntu-latest
     strategy:
