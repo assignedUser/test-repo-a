@@ -22,12 +22,10 @@ name: Crossbow
 
 on:
   workflow_dispatch:
-
+    
   push:
     branches:
       - "*-github-*"
-
-
 jobs:
   source:
     name: Source Package
@@ -39,7 +37,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: e9be267eec95de8d5e6c0969f41407fcf87e1fbf
+          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
           submodules: recursive
 
       - name: Modify version
@@ -55,7 +53,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"e9be267eec95de8d5e6c0969f41407fcf87e1fbf"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -96,7 +94,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: e9be267eec95de8d5e6c0969f41407fcf87e1fbf
+          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
           submodules: recursive
 
       - name: Modify version
@@ -112,7 +110,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"e9be267eec95de8d5e6c0969f41407fcf87e1fbf"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -149,5 +147,3 @@ jobs:
           name: r-${{ matrix.config.os}}-libarrow
           path: arrow/r/libarrow/dist/arrow-*20220510.zip
         #TODO:  upload binary
-
-
