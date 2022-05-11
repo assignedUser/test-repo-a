@@ -30,6 +30,8 @@ jobs:
           pass = $(rclone obscure $PW)" > nightly.conf
           pwd
       - run: mkdir nightly
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - run: |
           rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ nightly --daemon
           mkdir nightly/test
