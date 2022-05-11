@@ -26,9 +26,16 @@ jobs:
               port = 8080L,
               server = "nightly.wujciak.de",
               protocol = "https",
-              account = "${{ secrets.ASF_USER }}"
+              account = "${{ secrets.ASF_USER }}",
+              path = "/"
             ),
             class = "internet_password")
+           webdav2 <- macos_item("${{ secrets.ASF_KEY }}",
+            attributes = list(
+              service = "https://nightly.wujciak.de:8080/",
+              account = "${{ secrets.ASF_USER }}",
+            ),
+            class = "generic_password")
             macos_item_add(webdav)
         shell: Rscript {0}
       # - name: Set up keychain
