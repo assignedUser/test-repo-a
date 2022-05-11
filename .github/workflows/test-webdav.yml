@@ -15,6 +15,7 @@ jobs:
   test-mac:
     runs-on: macos-latest
     steps:
+      - run: brew install --cask macfuse
       - run: curl https://rclone.org/install.sh | sudo bash
       - name: Configure rclone
         env:
