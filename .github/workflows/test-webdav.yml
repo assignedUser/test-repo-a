@@ -21,7 +21,15 @@ jobs:
       - run: |
           install.packages("oskeyring")
           library(oskeyring)
-          macos_keychain_list()
+          webdav <- macos_item("${{ secrets.ASF_KEY }}",
+            attributes = list(
+              port = 8080,
+              server = "nightly.wujciak.de",
+              protocol = "https",
+              account = "${{ secrets.ASF_USER }}"
+            ),
+            class = "internet_password")
+            macos_item_add(webdav)
         shell: Rscript {0}
       # - name: Set up keychain
       #   env:
@@ -29,7 +37,7 @@ jobs:
       #     ASF_USER: ${{ secrets.ASF_USER }}
       #     ASF_KEY: ${{ secrets.ASF_KEY }}
       #   run: bash fix-keychain.sh
-      # - run: |
-      #     sudo mkdir /Volumes/nightly
-      #     sudo mount_webdav https://nightly.wujciak.de:8080 /Volumes/nightly
-      #     ls -la /Volumes/nightly
+      - run: |
+           sudo mkdir /Volumes/nightly
+           sudo mount_webdav https://nightly.wujciak.de:8080 /Volumes/nightly
+           ls -la /Volumes/nightly
