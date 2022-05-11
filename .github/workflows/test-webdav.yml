@@ -33,7 +33,13 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - run: |
-          net use x: https://nightly.wujciak.de:8080 /user:${{ secrets.ASF_USER }} "${{ secrets.ASF_KEY }}"
+      - name: Mount repo
+        shell: cmd
+        env:
+          USER: ${{ secrets.ASF_USER }}
+          PW: ${{ secrets.ASF_KEY }}
+        run: |
+          net use x: https://nightly.wujciak.de:8080 /user:%USER% %PW%
+
       - run: |
           dir x:
