@@ -25,7 +25,8 @@ on:
     
   push:
     branches:
-      - "*-github-*"
+
+
 
 jobs:
   source:
@@ -46,7 +47,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220511"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -56,6 +57,7 @@ jobs:
           cd tools
           sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
+
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -68,12 +70,32 @@ jobs:
           # Copy in the Arrow C++ source
           make sync-cpp
           R CMD build --no-build-vignettes .
+
+      - name: Install davfs2 & Mount Repo
+        run: | 
+          sudo apt update && sudo apt install davfs2
+          mkdir nightly
+          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
+
+      - run: |
+          mkdir -p nightly/src/contrib && \
+             mv arrow/r/arrow_*20220511.tar.gz nightly/src/contrib
+
+      - name: Update Repo
+        shell: Rscript {0}
+        run: |
+          if(file.exists("nightly/src/contrib/PACKAGES")) {
+            tools::update_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+          } else {
+            tools::write_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+          }
+
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-src-pkg
-          path: arrow/r/arrow_*20220510.tar.gz
-      #TODO: update repo files & upload package
+          path: arrow/r/arrow_*20220511.tar.gz
 
   linux-cpp:
     name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
@@ -102,7 +124,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220511"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -137,16 +159,14 @@ jobs:
           cd libarrow/dist
           # These files were created by the docker user so we have to sudo to get them
           sudo -E zip -r $PKG_FILE lib/ include/
-          export REPO_PATH=${{ github.workspace }}/repo/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
+          export REPO_PATH=libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
 
-          #sudo mkdir -p $REPO_PATH
-          #sudo mv -f $PKG_FILE $REPO_PATH
+          curl -u $USER:$PW -T $PKG_FILE  'https://nightly.wujciak.de:8080/$REPO_PATH/'
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-${{ matrix.config.os}}-libarrow
-          path: arrow/r/libarrow/dist/arrow-*20220510.zip
-        #TODO:  upload binary
+          path: arrow/r/libarrow/dist/arrow-*20220511.zip
 
   windows-cpp:
     name: C++ Binary Windows RTools (40 only)
@@ -167,7 +187,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220511"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -190,12 +210,22 @@ jobs:
         env:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
+
+      - name: Mount repo
+        shell: bash
+        env:
+          USER: ${{ secrets.ASF_USER }}
+          PW: ${{ secrets.ASF_KEY }}
+        run: |
+          touch test_8.0.0.20220510.zip
+          curl -u $USER:$PW -T test_20220511.zip  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
+
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-windows-libarrow
-          path: build/arrow-*20220510.zip 
-        #TODO:  upload binary
+          path: build/arrow-*20220511.zip 
+
   r-packages:
     if: true
     needs: [source, windows-cpp]
@@ -226,7 +256,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220510"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220511"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -266,7 +296,7 @@ jobs:
             INSTALL_opts <- c(INSTALL_opts, "--strip")
           }
           install.packages(
-            dir(pattern = "^arrow_.+20220510.tar.gz")[[1]],
+            dir(pattern = "^arrow_.+20220511.tar.gz")[[1]],
             type = "source",
             repos = NULL,
             #repos = "https://arrow-r-nightly.s3.amazonaws.com",
@@ -280,6 +310,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: r-${{ matrix.config.os}}-pkg
-          path: arrow_*20220510.zip 
+          path: arrow_*20220511.zip 
       #TODO: upload binary and update repo
 
