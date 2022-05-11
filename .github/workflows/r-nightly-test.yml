@@ -218,7 +218,7 @@ jobs:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
         run: |
-          curl -u $USER:$PW -T arrow-*20220512.zip  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
+          curl -u $USER:$PW -T build/arrow-*20220512.zip  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
 
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
