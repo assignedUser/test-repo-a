@@ -17,10 +17,10 @@ jobs:
     steps:
       - name: Set up keychain
         run: |
-          security create-keychain -p  $(echo -n ${{ secrets_GITHUB_TOKEN}} | sha256sum | awk '{print $1}') nightly.keychain
+          security create-keychain -p  $(echo -n ${{ secrets.GITHUB_TOKEN}} | sha256sum | awk '{print $1}') nightly.keychain
           set-keychain-settings nightly.keychain
           security default-keychain -s nightly.keychain
-          security unlock-keychain -p $(echo -n ${{ secrets_GITHUB_TOKEN}} | sha256sum | awk '{print $1}') nightly.keychain
+          security unlock-keychain -p $(echo -n ${{ secrets.GITHUB_TOKEN}} | sha256sum | awk '{print $1}') nightly.keychain
           security add-generic-password -U -a ${{ secrets.nightly_user }} -s https://nightly.wujciak.de -w ${{ secrets.nightly_key }}
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
