@@ -15,7 +15,8 @@ jobs:
   test-mac:
     runs-on: macos-latest
     steps:
-      - run: brew install rclone --cask macfuse
+      - run: brew install --cask macfuse
+      - run: brew install rclone
       - name: Configure rclone
         env:
           PW: ${{ secrets.ASF_KEY }}
@@ -27,42 +28,9 @@ jobs:
           vendor = other
           user = $USER
           pass = $(rclone obscure $PW)" > nightly.conf
-      # - uses: r-lib/actions/setup-r@v2
-      #   with:
-      #     install-r: false
-      # - run: |
-      #     install.packages("oskeyring")
-      #     library(oskeyring)
-      #     webdav <- macos_item("${{ secrets.ASF_KEY }}",
-      #       attributes = list(
-      #         port = 8080L,
-      #         server = "nightly.wujciak.de",
-      #         protocol = "https",
-      #         account = "${{ secrets.ASF_USER }}",
-      #         path = "/"
-      #       ),
-      #       class = "internet_password")
-      #      webdav2 <- macos_item("${{ secrets.ASF_KEY }}",
-      #       attributes = list(
-      #         service = "https://nightly.wujciak.de:8080/",
-      #         account = "${{ secrets.ASF_USER }}"
-      #       ),
-      #       class = "generic_password")
-      #       macos_item_add(webdav)
-      #       macos_item_add(webdav2)
-      #       macos_keychain_list()
-      #   shell: Rscript {0}
-      # - name: Set up keychain
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     ASF_USER: ${{ secrets.ASF_USER }}
-      #     ASF_KEY: ${{ secrets.ASF_KEY }}
-      #   run: bash fix-keychain.sh
       - run: mkdir nightly
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
       - run: |
-          rclone --config=${{ github.workspace }}/nightly.conf ls nightly:/
-          rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ nightly --daemon
-      # - run: mount_webdav https://nightly.wujciak.de:8080/ ./nightly
-      - run: ls nightly
+          rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ ${{ github.workspace }}/nightly --daemon
+      - run: |
+          touch nightly/test.f
+          ls -la nightly
