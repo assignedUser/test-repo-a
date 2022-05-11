@@ -28,9 +28,10 @@ jobs:
           vendor = other
           user = $USER
           pass = $(rclone obscure $PW)" > nightly.conf
+          pwd
       - run: mkdir nightly
       - run: |
-          rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ ${{ github.workspace }}/nightly --daemon
+          rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ nightly --daemon
       - run: |
-          touch nightly/test.f
-          ls -la nightly
+          mkdir nightly/test
+          ls -lra nightly
