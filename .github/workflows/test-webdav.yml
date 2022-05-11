@@ -33,7 +33,7 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - run: Install-WindowsFeature WebDAV-Redirector –Restart
+      - run: Install-WindowsFeature WebDAV-Redirector 
       - name: Mount repo
         shell: cmd
         env:
