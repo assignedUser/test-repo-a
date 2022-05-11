@@ -33,7 +33,6 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - run: Install-WindowsFeature WebDAV-Redirector 
       - name: Mount repo
         shell: bash
         env:
@@ -42,6 +41,3 @@ jobs:
         run: |
           touch test.zip
           curl -u $USER:$PW -T test.zip  -p'https://nightly.wujciak.de:8080'
-
-      - run: |
-          dir R:
