@@ -62,6 +62,8 @@ jobs:
       #     ASF_KEY: ${{ secrets.ASF_KEY }}
       #   run: bash fix-keychain.sh
       - run: mkdir nightly
-      - run: rclone mount nightly:/ nightly
+      - run: |
+          rclone ls nightly:/
+          rclone mount nightly:/ nightly --daemon
       # - run: mount_webdav https://nightly.wujciak.de:8080/ ./nightly
       - run: ls nightly
