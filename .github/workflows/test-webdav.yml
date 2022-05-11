@@ -37,7 +37,6 @@ jobs:
       #     ASF_USER: ${{ secrets.ASF_USER }}
       #     ASF_KEY: ${{ secrets.ASF_KEY }}
       #   run: bash fix-keychain.sh
-      - run: |
-           sudo mkdir /Volumes/nightly
-           sudo mount_webdav "https://nightly.wujciak.de:8080" "/Volumes/nightly"
-           ls -la /Volumes/nightly
+      - run: mkdir nightly
+      - run: mount_webdav https://nightly.wujciak.de:8080/ ./nightly
+      - run: ls -la /Volumes/nightly
