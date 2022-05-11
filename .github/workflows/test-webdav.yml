@@ -33,10 +33,11 @@ jobs:
            webdav2 <- macos_item("${{ secrets.ASF_KEY }}",
             attributes = list(
               service = "https://nightly.wujciak.de:8080/",
-              account = "${{ secrets.ASF_USER }}",
+              account = "${{ secrets.ASF_USER }}"
             ),
             class = "generic_password")
             macos_item_add(webdav)
+            macos_item_add(webdav2)
         shell: Rscript {0}
       # - name: Set up keychain
       #   env:
