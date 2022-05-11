@@ -39,7 +39,7 @@ jobs:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
         run: |
-          net use x: https://nightly.wujciak.de:8080 /user:%USER% %PW%
+          net use R: https://nightly.wujciak.de:8080 /user:%USER% %PW%
 
       - run: |
-          dir x:
+          dir R:
