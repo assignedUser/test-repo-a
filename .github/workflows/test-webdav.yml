@@ -22,7 +22,6 @@ jobs:
           ASF_USER: ${{ secrets.ASF_USER }}
           ASF_KEY: ${{ secrets.ASF_KEY }}
         run: bash fix-keychain.sh
-        #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
           sudo mkdir /Volumes/nightly
           sudo mount_webdav https://nightly.wujciak.de:8080 /Volumes/nightly
