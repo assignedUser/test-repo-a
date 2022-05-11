@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - run: brew install --cask macfuse
-      - run: brew install rclone
+      - run: curl https://rclone.org/install.sh | sudo bash
       - name: Configure rclone
         env:
           PW: ${{ secrets.ASF_KEY }}
