@@ -78,18 +78,16 @@ jobs:
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - run: |
+          ls -la arrow/r/
           sudo mkdir -p nightly/src/contrib && \
              sudo cp arrow/r/arrow_*20220512.tar.gz nightly/src/contrib
+             
 
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
-          if(file.exists("nightly/src/contrib/PACKAGES")) {
-            tools::update_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
-          } else {
             tools::write_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
-          }
-
+      - run: sudo umount nightly
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
