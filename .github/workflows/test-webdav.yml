@@ -33,7 +33,7 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - run: Install-WindowsFeature Desktop-Experience
+      - run: Install-WindowsFeature WebDAV-Redirector –Restart
       - name: Mount repo
         shell: cmd
         env:
