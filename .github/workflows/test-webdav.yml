@@ -16,24 +16,35 @@ jobs:
   test-mac:
     runs-on: macos-latest
     steps:
-      - run: brew install --cask macfuse
-      - run: curl https://rclone.org/install.sh | sudo bash
+      #- run: brew install --cask macfuse
+      #- run: curl https://rclone.org/install.sh | sudo bash
+      - run: mkdir nightly
       - name: Configure rclone
+        shell: expect
         env:
           PW: ${{ secrets.ASF_KEY }}
           USER: ${{ secrets.ASF_USER }}
         run: |
-          echo "[nightly]
-          type = webdav
-          url = https://nightly.wujciak.de:8080
-          vendor = other
-          user = $USER
-          pass = $(rclone obscure $PW)" > nightly.conf
-          pwd
-      - run: mkdir nightly
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+          spawn /sbin/mount_webdav -i -s -v nightly https://nightly.wujciak.de:8080/  ${{ github.workspace }}/nightly
+          expect "name:" {
+          send "$USER\r"
+          }
+          expect timeout {
+          exit
+          } "word:" {
+          send "$PW\r"
+          exp_continue
+          }
+          # echo "[nightly]
+          # type = webdav
+          # url = https://nightly.wujciak.de:8080
+          # vendor = other
+          # user = $USER
+          # pass = $(rclone obscure $PW)" > nightly.conf
+          # pwd
+
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
       - run: |
-          rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ nightly --daemon
           mkdir nightly/test
           ls -lra nightly
