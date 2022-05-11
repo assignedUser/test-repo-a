@@ -40,4 +40,4 @@ jobs:
           PW: ${{ secrets.ASF_KEY }}
         run: |
           touch test.zip
-          curl -u $USER:$PW -T test.zip  -p'https://nightly.wujciak.de:8080'
+          curl -u $USER:$PW -T test.zip  'https://nightly.wujciak.de:8080/'
