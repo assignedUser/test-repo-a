@@ -9,7 +9,7 @@ jobs:
   #     - run: | 
   #         sudo apt update && sudo apt install davfs2
   #         mkdir nightly
-  #         sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.nightly_user }} ${{ secrets.nightly_key }}" >> /etc/davfs2/secrets'
+  #         sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
   #         sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
   #         ls -la nightly
   test-mac:
@@ -17,11 +17,11 @@ jobs:
     steps:
       - name: Set up keychain
         run: |
-          security create-keychain -p  $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') nightly.keychain
-          security set-keychain-settings nightly.keychain
-          security default-keychain -s nightly.keychain
-          security unlock-keychain -p $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') nightly.keychain
-          security add-generic-password -U -a ${{ secrets.nightly_user }} -s https://nightly.wujciak.de -w ${{ secrets.nightly_key }}
+          security create-keychain -p  $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') webdav.keychain
+          security set-keychain-settings webdav.keychain
+          security default-keychain -s webdav.keychain
+          security unlock-keychain -p $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') webdav.keychain
+          security add-generic-password -U -a ${{ secrets.ASF_USER }} -s https://nightly.wujciak.de -w ${{ secrets.ASF_KEY }}
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
           mkdir nightly
