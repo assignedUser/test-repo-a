@@ -19,20 +19,17 @@ jobs:
       #- run: brew install --cask macfuse
       #- run: curl https://rclone.org/install.sh | sudo bash
       - run: mkdir nightly
-      - name: Configure rclone
+      - name: Mount repo
         shell: expect {0}
-        env:
-          PW: ${{ secrets.ASF_KEY }}
-          USER: ${{ secrets.ASF_USER }}
         run: |
           spawn /sbin/mount_webdav -i -s -v nightly https://nightly.wujciak.de:8080/  ${{ github.workspace }}/nightly
           expect "name:" {
-          send "$USER\r"
+          send "${{ secrets.ASF_USER }}\r"
           }
           expect timeout {
           exit
           } "word:" {
-          send "$PW\r"
+          send "${{ secrets.ASF_KEY }}\r"
           exp_continue
           }
           # echo "[nightly]
