@@ -24,6 +24,6 @@ jobs:
         run: bash fix-keychain.sh
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
-          mkdir nightly
-          mount -t webdav https://nightly.wujciak.de:8080 ./nightly
-          ls -la nightly
+          sudo mkdir /Volumes/nightly
+          sudo mount -t webdav https://nightly.wujciak.de:8080 /Volumes/nightly
+          ls -la /Volumes/nightly
