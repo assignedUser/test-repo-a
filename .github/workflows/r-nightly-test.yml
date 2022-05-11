@@ -79,11 +79,11 @@ jobs:
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - run: |
-          mkdir -p nightly/src/contrib && \
-             mv arrow/r/arrow_*20220511.tar.gz nightly/src/contrib
+          sudo mkdir -p nightly/src/contrib && \
+             sudo mv arrow/r/arrow_*20220511.tar.gz nightly/src/contrib
 
       - name: Update Repo
-        shell: Rscript {0}
+        shell: sudo Rscript {0}
         run: |
           if(file.exists("nightly/src/contrib/PACKAGES")) {
             tools::update_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
