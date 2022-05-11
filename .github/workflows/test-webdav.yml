@@ -23,7 +23,7 @@ jobs:
           library(oskeyring)
           webdav <- macos_item("${{ secrets.ASF_KEY }}",
             attributes = list(
-              port = 8080,
+              port = 8080L,
               server = "nightly.wujciak.de",
               protocol = "https",
               account = "${{ secrets.ASF_USER }}"
