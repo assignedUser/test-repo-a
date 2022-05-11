@@ -13,35 +13,27 @@ jobs:
   #         sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
   #         sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
   #         ls -la nightly
-  test-mac:
-    runs-on: macos-latest
+  # test-mac:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - run: mkdir nightly
+  #     - name: Mount repo
+  #       shell: expect {0}
+  #       run: |
+  #         spawn /sbin/mount_webdav -i -s -v nightly https://nightly.wujciak.de:8080/  ${{ github.workspace }}/nightly
+  #         expect "name:" {
+  #         send "${{ secrets.ASF_USER }}\r"
+  #         }
+  #         expect timeout {
+  #         exit
+  #         } "word:" {
+  #         send "${{ secrets.ASF_KEY }}\r"
+  #         exp_continue
+  #         }
+  test-windows:
+    runs-on: windows-latest
     steps:
-      #- run: brew install --cask macfuse
-      #- run: curl https://rclone.org/install.sh | sudo bash
-      - run: mkdir nightly
-      - name: Mount repo
-        shell: expect {0}
-        run: |
-          spawn /sbin/mount_webdav -i -s -v nightly https://nightly.wujciak.de:8080/  ${{ github.workspace }}/nightly
-          expect "name:" {
-          send "${{ secrets.ASF_USER }}\r"
-          }
-          expect timeout {
-          exit
-          } "word:" {
-          send "${{ secrets.ASF_KEY }}\r"
-          exp_continue
-          }
-          # echo "[nightly]
-          # type = webdav
-          # url = https://nightly.wujciak.de:8080
-          # vendor = other
-          # user = $USER
-          # pass = $(rclone obscure $PW)" > nightly.conf
-          # pwd
-
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
       - run: |
-          mkdir nightly/test
-          ls -lra nightly
+          net use x: https://nightly.wujciak.de:8080 /user:${{ secrets.ASF_USER }} "${{ secrets.ASF_KEY }}"
+      - run: |
+          dir x:
