@@ -69,19 +69,20 @@ jobs:
           # Copy in the Arrow C++ source
           make sync-cpp
           R CMD build --no-build-vignettes .
+      - name: Mount repo
+        shell: bash
+        env:
+          USER: ${{ secrets.ASF_USER }}
+          PW: ${{ secrets.ASF_KEY }}
+        run: |
+          curl -u $USER:$PW -T arrow/r/arrow_*20220512.tar.gz  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
 
       - name: Install davfs2 & Mount Repo
         run: | 
           sudo apt update && sudo apt install davfs2
           mkdir nightly
           sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
-          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
-
-      - run: |
-          ls -la arrow/r/
-          sudo mkdir -p nightly/src/contrib && \
-             sudo cp arrow/r/arrow_*20220512.tar.gz nightly/src/contrib
-             
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw             
 
       - name: Update Repo
         shell: sudo Rscript {0}
@@ -211,7 +212,7 @@ jobs:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
 
-      - name: Mount repo
+      - name: Upload binary
         shell: bash
         env:
           USER: ${{ secrets.ASF_USER }}
