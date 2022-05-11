@@ -25,5 +25,5 @@ jobs:
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
           sudo mkdir /Volumes/nightly
-          sudo mount -t webdav https://nightly.wujciak.de:8080 /Volumes/nightly
+          sudo mount_webdav https://nightly.wujciak.de:8080 /Volumes/nightly
           ls -la /Volumes/nightly
