@@ -356,7 +356,7 @@ jobs:
         env:
           LIBARROW_BUILD: "FALSE"
           LIBARROW_BINARY: "TRUE"
-        shell: PATH=/opt/R-devel/bin:$PATH Rscript {0}
+        shell: /opt/R-devel/Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           install.packages(
