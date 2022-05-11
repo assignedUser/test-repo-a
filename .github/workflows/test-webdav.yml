@@ -1,5 +1,6 @@
 name: WebDav
 on:
+  push:
   workflow_dispatch:
 
 jobs:
