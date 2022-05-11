@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ASF_USER: ${{ secrets.ASF_USER }}
           ASF_KEY: ${{ secrets.ASF_KEY }}
-        run: fix-keychain.sh
+        run: bash fix-keychain.sh
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
           mkdir nightly
