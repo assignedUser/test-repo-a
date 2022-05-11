@@ -20,7 +20,7 @@ jobs:
       #- run: curl https://rclone.org/install.sh | sudo bash
       - run: mkdir nightly
       - name: Configure rclone
-        shell: expect
+        shell: expect {0}
         env:
           PW: ${{ secrets.ASF_KEY }}
           USER: ${{ secrets.ASF_USER }}
