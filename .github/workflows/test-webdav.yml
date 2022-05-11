@@ -33,13 +33,13 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
+      - run: Install-WindowsFeature Desktop-Experience
       - name: Mount repo
         shell: cmd
         env:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
-        run: |
-          net use R: https://nightly.wujciak.de:8080 /user:%USER% %PW%
+        run: "net use R: https://nightly.wujciak.de:8080 /user:%USER% %PW%"
 
       - run: |
           dir R:
