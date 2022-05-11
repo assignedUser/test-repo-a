@@ -34,7 +34,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Mount repo
-        shell: runas /trustlevel:0x20000 'cmd.exe /D /E:ON /V:OFF /S /C \"CALL \"{0}\"\".'
+        shell: cmd
         env:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
