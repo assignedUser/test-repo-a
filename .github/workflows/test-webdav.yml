@@ -39,5 +39,4 @@ jobs:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
         run: |
-          touch test_8.0.0.20220510.zip
-          curl -u $USER:$PW -T test_*20220510.zip  'https://nightly.wujciak.de:8080/'
+          sudo apt install davfs2
