@@ -15,13 +15,13 @@ jobs:
   test-mac:
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Set up keychain
-        run: |
-          security create-keychain -p  $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') webdav.keychain
-          security set-keychain-settings webdav.keychain
-          security default-keychain -s webdav.keychain
-          security unlock-keychain -p $(echo -n ${{ secrets.GITHUB_TOKEN}} | shasum | awk '{print $1}') webdav.keychain
-          security add-generic-password -U -a ${{ secrets.ASF_USER }} -s https://nightly.wujciak.de -w ${{ secrets.ASF_KEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASF_USER: ${{ secrets.ASF_USER }}
+          ASF_KEY: ${{ secrets.ASF_KEY }}
+        run: fix-keychain.sh
         #security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
       - run: |
           mkdir nightly
