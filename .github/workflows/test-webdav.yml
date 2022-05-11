@@ -35,11 +35,13 @@ jobs:
     steps:
       - run: Install-WindowsFeature WebDAV-Redirector 
       - name: Mount repo
-        shell: cmd
+        shell: bash
         env:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
-        run: "net use R: https://nightly.wujciak.de:8080 /user:%USER% %PW%"
+        run: |
+          touch test.zip
+          curl -u $USER:$PW -T test.zip  -p'https://nightly.wujciak.de:8080'
 
       - run: |
           dir R:
