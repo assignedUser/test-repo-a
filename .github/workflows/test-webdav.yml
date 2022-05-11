@@ -32,6 +32,5 @@ jobs:
       - run: mkdir nightly
       - run: |
           rclone --config=${{ github.workspace }}/nightly.conf mount nightly:/ nightly --daemon
-      - run: |
           mkdir nightly/test
           ls -lra nightly
