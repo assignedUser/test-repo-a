@@ -1,0 +1,14 @@
+name: WebDav
+on:
+  workflow_dispatch:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - run: | 
+          sudo apt update && sudo apt install davfs2
+          mkdir nightly
+          sudo echo "https://nightly.wujciak.de:8080 ${{ secrets.nightly_user }} ${{ secrets.nightly_key }}" >> /etc/davfs2/secrets
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
+          ls -la nightly
