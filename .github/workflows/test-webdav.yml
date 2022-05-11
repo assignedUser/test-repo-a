@@ -15,30 +15,40 @@ jobs:
   test-mac:
     runs-on: macos-latest
     steps:
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          install-r: false
+      - run: curl https://rclone.org/install.sh | sudo bash
       - run: |
-          install.packages("oskeyring")
-          library(oskeyring)
-          webdav <- macos_item("${{ secrets.ASF_KEY }}",
-            attributes = list(
-              port = 8080L,
-              server = "nightly.wujciak.de",
-              protocol = "https",
-              account = "${{ secrets.ASF_USER }}",
-              path = "/"
-            ),
-            class = "internet_password")
-           webdav2 <- macos_item("${{ secrets.ASF_KEY }}",
-            attributes = list(
-              service = "https://nightly.wujciak.de:8080/",
-              account = "${{ secrets.ASF_USER }}"
-            ),
-            class = "generic_password")
-            macos_item_add(webdav)
-            macos_item_add(webdav2)
-        shell: Rscript {0}
+          echo "[nightly]
+          type = webdav
+          url = https://nightly.wujciak.de:8080
+          vendor = other
+          user = ${{ secrets.ASF_USER }}
+          pass = $(rclone obscure ${{ secrets.ASF_KEY }})" > nightly.conf 
+          echo "RCLONE_CONFIG=${{ github.workspace }}/nightly.conf" >> $GTIHUB_ENV
+      # - uses: r-lib/actions/setup-r@v2
+      #   with:
+      #     install-r: false
+      # - run: |
+      #     install.packages("oskeyring")
+      #     library(oskeyring)
+      #     webdav <- macos_item("${{ secrets.ASF_KEY }}",
+      #       attributes = list(
+      #         port = 8080L,
+      #         server = "nightly.wujciak.de",
+      #         protocol = "https",
+      #         account = "${{ secrets.ASF_USER }}",
+      #         path = "/"
+      #       ),
+      #       class = "internet_password")
+      #      webdav2 <- macos_item("${{ secrets.ASF_KEY }}",
+      #       attributes = list(
+      #         service = "https://nightly.wujciak.de:8080/",
+      #         account = "${{ secrets.ASF_USER }}"
+      #       ),
+      #       class = "generic_password")
+      #       macos_item_add(webdav)
+      #       macos_item_add(webdav2)
+      #       macos_keychain_list()
+      #   shell: Rscript {0}
       # - name: Set up keychain
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,5 +56,6 @@ jobs:
       #     ASF_KEY: ${{ secrets.ASF_KEY }}
       #   run: bash fix-keychain.sh
       - run: mkdir nightly
-      - run: mount_webdav https://nightly.wujciak.de:8080/ ./nightly
-      - run: ls -la /Volumes/nightly
+      - run: rclone mount nightly:/ nightly
+      # - run: mount_webdav https://nightly.wujciak.de:8080/ ./nightly
+      - run: ls nightly
