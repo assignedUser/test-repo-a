@@ -22,9 +22,7 @@ name: Crossbow
 
 on:
   workflow_dispatch:
-    
   push:
-    branches:
 
 
 jobs:
@@ -69,25 +67,27 @@ jobs:
           # Copy in the Arrow C++ source
           make sync-cpp
           R CMD build --no-build-vignettes .
-      - name: Mount repo
-        shell: bash
-        env:
-          USER: ${{ secrets.ASF_USER }}
-          PW: ${{ secrets.ASF_KEY }}
-        run: |
-          curl -u $USER:$PW -T arrow/r/arrow_*20220512.tar.gz  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
 
       - name: Install davfs2 & Mount Repo
         run: | 
           sudo apt update && sudo apt install davfs2
           mkdir nightly
           sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
-          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw             
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
+
+      - run: |
+          sudo mkdir -p nightly/src/contrib && \
+             sudo cp arrow/r/arrow_*20220512.tar.gz nightly/src/contrib
 
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
+          if(file.exists("nightly/src/contrib/PACKAGES")) {
+            tools::update_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+          } else {
             tools::write_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+          }
+      
       - run: sudo umount nightly
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
@@ -212,7 +212,7 @@ jobs:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
 
-      - name: Upload binary
+      - name: Upload Binary
         shell: bash
         env:
           USER: ${{ secrets.ASF_USER }}
@@ -305,13 +305,21 @@ jobs:
 
           # Test
           library(arrow)
-          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))  
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+      - name: Upload package
+        shell: bash
+        env:
+          USER: ${{ secrets.ASF_USER }}
+          PW: ${{ secrets.ASF_KEY }}
+          
+        run: |
+          REPO_PATH=$(Rscript -e "cat(contrib.url('', type = 'binary'), sep = '\n')")
+          curl -u $USER:$PW -T arrow_*20220512.zip  'https://nightly.wujciak.de:8080$REPO_PATH/'
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-${{ matrix.config.os}}-pkg
           path: arrow_*20220512.zip 
-      #TODO: upload binary and update repo
 
   test-linux-binary:
     if: true
@@ -400,4 +408,71 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+  update-repo:
+    needs: r-packages
+    name: Update PACKAGES
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Arrow
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: arrow
+          repository: assignUser/arrow
+          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
+          submodules: recursive
+
+      - name: Modify version
+        shell: bash
+        run: |
+          cd arrow/r
+          sed -i.bak -E -e \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
+            DESCRIPTION
+          head DESCRIPTION
+          rm -f DESCRIPTION.bak
+          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
+          
+          # Pin the git commit in the formula to match
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
+
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          install-r: false
+
+      - name: Build R source package
+        shell: bash
+        run: |
+          cd arrow/r
+          # Copy in the Arrow C++ source
+          make sync-cpp
+          R CMD build --no-build-vignettes .
+
+      - name: Install davfs2 & Mount Repo
+        run: | 
+          sudo apt update && sudo apt install davfs2
+          mkdir nightly
+          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
+
+      - name: Update Repo
+        shell: sudo Rscript {0}
+        run: |
+          on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
+
+          bin_dirs <- paste0("nightly/", dir("nightly/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
+
+          for(dir in bin_dirs) {
+            if(file.exists(paste0(dir,"/PACKAGES"))) {
+              tools::update_PACKAGES(dir , type = ifelse(on_windows, "win.binary", "mac.binary"), latestOnly = FALSE)
+            } else {
+              tools::write_PACKAGES(dir , type = ifelse(on_windows, "win.binary", "mac.binary"), latestOnly = FALSE)
+            }
+          }
+
+      - run: sudo umount nightly
 
