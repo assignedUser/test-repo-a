@@ -24,7 +24,6 @@ on:
   workflow_dispatch:
   push:
 
-
 jobs:
   source:
     name: Source Package
@@ -75,20 +74,37 @@ jobs:
           sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
-      - run: |
-          sudo mkdir -p nightly/src/contrib && \
-             sudo cp arrow/r/arrow_*20220512.tar.gz nightly/src/contrib
-
+      - name: Upload Source Package
+        run: | 
+        # ensure repo structure is set up, this job is the fastest and should fix any issue before the other jobs try
+        # to push into non existent folder with curl, which would fail silently. 
+        sudo mkdir -p nightly/r/src/contrib 
+     
+          sudo mkdir -p nightly/r/libarrow/bin/ubuntu-18.04
+     
+          sudo mkdir -p nightly/r/libarrow/bin/centos-7
+     
+          sudo mkdir -p nightly/r/bin/windows/contrib/4.1
+          sudo mkdir -p nightly/r/bin/windows/contrib/4.2
+     
+          sudo mkdir -p nightly/r/bin/macosx/contrib/4.1
+          sudo mkdir -p nightly/r/bin/macosx/contrib/4.2
+     
+          sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.1
+          sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.2
+        
+        sudo cp arrow/r/arrow_*20220512.tar.gz nightly/r/src/contrib
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
-          if(file.exists("nightly/src/contrib/PACKAGES")) {
-            tools::update_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+          if(file.exists("nightly/r/src/contrib/PACKAGES")) {
+            tools::update_PACKAGES("nightly/r/src/contrib" , type = "source", latestOnly = FALSE)
           } else {
-            tools::write_PACKAGES("nightly/src/contrib" , type = "source", latestOnly = FALSE)
+            tools::write_PACKAGES("nightly/r/src/contrib" , type = "source", latestOnly = FALSE)
           }
-      
-      - run: sudo umount nightly
+
+      # ensures all changes are written
+      - run: sudo umount nightly 
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
@@ -218,7 +234,7 @@ jobs:
           USER: ${{ secrets.ASF_USER }}
           PW: ${{ secrets.ASF_KEY }}
         run: |
-          curl -u $USER:$PW -T build/arrow-*20220512.zip  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
+          curl -u $USER:$PW -T arrow-*20220512.zip  'https://nightly.wujciak.de:8080/libarrow/bin/windows/'
 
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
@@ -272,10 +288,6 @@ jobs:
           r-version: ${{ matrix.r_version.r }}
           rtools-version: ${{ matrix.r_version.rtools }}
           Ncpus: 2
-      - name: Download src-pkg
-        uses: actions/download-artifact@v3
-        with:
-          name: r-src-pkg
       - name: Build Binary
         shell: Rscript {0}
         run: |
@@ -284,6 +296,7 @@ jobs:
           # Install dependencies by installing (yesterday's) binary, then removing it
           install.packages(c("arrow", "cpp11"),
             type = "binary",
+            # TODO replace with https://nightly.wujciak.de
             repos = c("https://arrow-r-nightly.s3.amazonaws.com", "https://cloud.r-project.org")
           )
           remove.packages("arrow")
@@ -296,10 +309,10 @@ jobs:
             INSTALL_opts <- c(INSTALL_opts, "--strip")
           }
           install.packages(
-            dir(pattern = "^arrow_.+20220512.tar.gz")[[1]],
+            "arrow",
             type = "source",
             repos = NULL,
-            #repos = "https://arrow-r-nightly.s3.amazonaws.com",
+            repos = "https://nightly.wujciak.de",
             INSTALL_opts = INSTALL_opts
           )
 
@@ -313,7 +326,7 @@ jobs:
           PW: ${{ secrets.ASF_KEY }}
           
         run: |
-          REPO_PATH=$(Rscript -e "cat(contrib.url('', type = 'binary'), sep = '\n')")
+          REPO_PATH=$(Rscript -e "cat(contrib.url('', type = 'binary'))")
           curl -u $USER:$PW -T arrow_*20220512.zip  'https://nightly.wujciak.de:8080$REPO_PATH/'
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
@@ -356,7 +369,8 @@ jobs:
         env:
           LIBARROW_BUILD: "FALSE"
           LIBARROW_BINARY: "TRUE"
-        shell: /opt/R-devel/Rscript {0}
+        #TODO ask neal about this: /opt/R-devel/Rscript {0}
+        shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           install.packages(
@@ -414,43 +428,10 @@ jobs:
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Arrow
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-          path: arrow
-          repository: assignUser/arrow
-          ref: 4ebd84f6ee7e8abdbf990dba4e5e2478113c442e
-          submodules: recursive
-
-      - name: Modify version
-        shell: bash
-        run: |
-          cd arrow/r
-          sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
-            DESCRIPTION
-          head DESCRIPTION
-          rm -f DESCRIPTION.bak
-          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
-          
-          # Pin the git commit in the formula to match
-          cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"4ebd84f6ee7e8abdbf990dba4e5e2478113c442e"'"/' apache-arrow.rb
-          rm -f apache-arrow.rb.bak
-
-
+    
       - uses: r-lib/actions/setup-r@v2
         with:
           install-r: false
-
-      - name: Build R source package
-        shell: bash
-        run: |
-          cd arrow/r
-          # Copy in the Arrow C++ source
-          make sync-cpp
-          R CMD build --no-build-vignettes .
 
       - name: Install davfs2 & Mount Repo
         run: | 
@@ -464,7 +445,7 @@ jobs:
         run: |
           on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
 
-          bin_dirs <- paste0("nightly/", dir("nightly/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
+          bin_dirs <- paste0("nightly/r/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
 
           for(dir in bin_dirs) {
             if(file.exists(paste0(dir,"/PACKAGES"))) {
@@ -475,4 +456,3 @@ jobs:
           }
 
       - run: sudo umount nightly
-
