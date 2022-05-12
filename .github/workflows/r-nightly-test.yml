@@ -25,7 +25,6 @@ on:
   push:
 
 
-
 jobs:
   source:
     name: Source Package
@@ -182,7 +181,7 @@ jobs:
           sudo -E zip -r $PKG_FILE lib/ include/
           export REPO_PATH=r/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
 
-          curl -s --fail --show-error -u $USER:$PW -T $PKG_FILE  'https://nightly.wujciak.de:8080/$REPO_PATH/'
+          curl -s --fail --show-error -u $USER:$PW -T $PKG_FILE  https://nightly.wujciak.de:8080/$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
@@ -240,7 +239,7 @@ jobs:
         run: |
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
-          curl -s --fail --show-error -u $USER:$PW -T arrow-$VERSION.zip  'https://nightly.wujciak.de:8080/r/libarrow/bin/windows/'
+          curl -s --fail --show-error -u $USER:$PW -T arrow-$VERSION.zip  https://nightly.wujciak.de:8080/r/libarrow/bin/windows/
 
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
@@ -333,7 +332,7 @@ jobs:
           
         run: |
           REPO_PATH=$(Rscript -e "cat(contrib.url('', type = 'binary'))")
-          curl -s --fail --show-error -u $USER:$PW -T arrow_*20220512.zip  'https://nightly.wujciak.de:8080$REPO_PATH/'
+          curl -s --fail --show-error -u $USER:$PW -T arrow_*20220512.zip  https://nightly.wujciak.de:8080$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
