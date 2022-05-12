@@ -249,7 +249,7 @@ jobs:
 
   r-packages:
     if: true
-    needs: [source, windows-cpp]
+    #needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
     strategy:
@@ -316,8 +316,7 @@ jobs:
           install.packages(
             "arrow",
             type = "source",
-            repos = NULL,
-            repos = https://nightly.wujciak.de/r",
+            repos = "https://nightly.wujciak.de/r",
             INSTALL_opts = INSTALL_opts
           )
 
