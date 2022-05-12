@@ -300,7 +300,7 @@ jobs:
           # Install dependencies by installing (yesterday's) binary, then removing it
           install.packages(c("arrow", "cpp11"),
             type = "binary",
-            # TODO replace with https://nightly.wujciak.de
+            # TODO replace with https://nightly.wujciak.de/r
             repos = c("https://arrow-r-nightly.s3.amazonaws.com", "https://cloud.r-project.org")
           )
           remove.packages("arrow")
@@ -316,7 +316,7 @@ jobs:
             "arrow",
             type = "source",
             repos = NULL,
-            repos = "https://nightly.wujciak.de",
+            repos = https://nightly.wujciak.de/r",
             INSTALL_opts = INSTALL_opts
           )
 
@@ -379,7 +379,7 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           install.packages(
             "arrow",
-            repos = c("https://nightly.wujciak.de", getOption("repos")),
+            repos = c("https://nightly.wujciak.de/r", getOption("repos")),
             verbose = TRUE
           )
           library(arrow)
@@ -405,7 +405,7 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           install.packages(
             "arrow",
-            repos = c("https://nightly.wujciak.de", getOption("repos")),
+            repos = c("https://nightly.wujciak.de/r", getOption("repos")),
             verbose = TRUE
           )
           library(arrow)
@@ -421,7 +421,7 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           install.packages(
             "arrow",
-            repos = c("https://nightly.wujciak.de", getOption("repos")),
+            repos = c("https://nightly.wujciak.de/r", getOption("repos")),
             verbose = TRUE
           )
           library(arrow)
