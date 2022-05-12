@@ -24,6 +24,8 @@ on:
   workflow_dispatch:
   push:
 
+
+
 jobs:
   source:
     name: Source Package
@@ -83,6 +85,8 @@ jobs:
           sudo mkdir -p nightly/r/libarrow/bin/ubuntu-18.04
      
           sudo mkdir -p nightly/r/libarrow/bin/centos-7
+     
+          sudo mkdir -p nightly/r/libarrow/bin/windows
      
           sudo mkdir -p nightly/r/bin/windows/contrib/4.1
           sudo mkdir -p nightly/r/bin/windows/contrib/4.2
