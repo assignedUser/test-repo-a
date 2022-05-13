@@ -268,8 +268,8 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: assignUser/arrow
-          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
+          repository: apache/arrow
+          #ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
           submodules: recursive
 
       - name: Modify version
