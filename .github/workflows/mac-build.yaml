@@ -1,6 +1,7 @@
 name: Mac
 on:
-
+  workflow_dispatch:
+  
 jobs:
   build:
     runs-on: macos-latest
