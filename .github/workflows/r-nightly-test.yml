@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
+          ref: dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3
           submodules: recursive
 
       - name: Modify version
@@ -44,7 +44,8 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
+            # TODO use a more robust solution 20220513
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -52,8 +53,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          #TODO revert before merge
-          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -134,7 +134,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
+          ref: dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3
           submodules: recursive
 
       - name: Modify version
@@ -142,7 +142,8 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
+            # TODO use a more robust solution 20220513
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -150,8 +151,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          #TODO revert before merge
-          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -201,7 +201,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
+          ref: dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3
           submodules: recursive
 
       - name: Modify version
@@ -209,7 +209,8 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
+            # TODO use a more robust solution 20220513
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -217,8 +218,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          #TODO revert before merge
-          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -272,7 +272,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
+          ref: dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3
           submodules: recursive
 
       - name: Modify version
@@ -280,7 +280,8 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
+            # TODO use a more robust solution 20220513
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -288,8 +289,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          #TODO revert before merge
-          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dd7bf882e6cf3e755cc41742ae684efd8b7c9ef3"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - uses: r-lib/actions/setup-r@v2
@@ -337,7 +337,7 @@ jobs:
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           REPO_PATH=r$(Rscript -e "cat(contrib.url('', type = 'binary'))")
 
-          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.zip https://nightly.wujciak.de:8080/$REPO_PATH/
+          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.* https://nightly.wujciak.de:8080/$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
@@ -467,3 +467,4 @@ jobs:
           }
 
       - run: sudo umount nightly
+
