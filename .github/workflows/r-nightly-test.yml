@@ -22,7 +22,7 @@ name: Crossbow
 
 on:
   workflow_dispatch:
-  push:
+  #push:
 
 
 jobs:
