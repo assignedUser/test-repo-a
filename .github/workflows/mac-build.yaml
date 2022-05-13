@@ -6,9 +6,13 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
+        - name: Detect M1
+          run: |
+            echo $(uname -m)
+            if [[ $(uname -m) == 'arm64' ]]; then
+              echo "ON_M1=true" >> $GITHUB_ENV
+            fi
         - uses: assignUser/actions/setup-r@detect-m1
-          env:
-            ON_M1: true
           with:
             r-version: 4.1
             rtools-version: 40
