@@ -24,6 +24,12 @@ on:
   workflow_dispatch:
   push:
 
+name: Crossbow
+on:
+  push:
+    branches:
+      - "*-github-*"
+
 
 jobs:
   source:
@@ -36,7 +42,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 084ec164ac7865609ce85af6a0519be88db42037
+          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
           submodules: recursive
 
       - name: Modify version
@@ -44,7 +50,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -52,7 +58,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"084ec164ac7865609ce85af6a0519be88db42037"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -96,7 +102,7 @@ jobs:
           sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.1
           sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.2
         
-          sudo cp arrow/r/arrow_*20220512.tar.gz nightly/r/src/contrib
+          sudo cp arrow/r/arrow_*.tar.gz nightly/r/src/contrib
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
@@ -112,7 +118,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: r-src-pkg
-          path: arrow/r/arrow_*20220512.tar.gz
+          path: arrow/r/arrow_*.tar.gz
 
   linux-cpp:
     name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
@@ -133,7 +139,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 084ec164ac7865609ce85af6a0519be88db42037
+          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
           submodules: recursive
 
       - name: Modify version
@@ -141,7 +147,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -149,7 +155,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"084ec164ac7865609ce85af6a0519be88db42037"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -181,12 +187,12 @@ jobs:
           sudo -E zip -r $PKG_FILE lib/ include/
           export REPO_PATH=r/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
 
-          curl -s --fail --show-error -u $USER:$PW -T $PKG_FILE  https://nightly.wujciak.de:8080/$REPO_PATH/
+          curl -s --fail --show-error -u $USER:$PW -T $PKG_FILE  'https://nightly.wujciak.de:8080/$REPO_PATH/'
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-${{ matrix.config.os}}-libarrow
-          path: arrow/r/libarrow/dist/arrow-*20220512.zip
+          path: arrow/r/libarrow/dist/arrow-*.zip
 
   windows-cpp:
     name: C++ Binary Windows RTools (40 only)
@@ -199,7 +205,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 084ec164ac7865609ce85af6a0519be88db42037
+          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
           submodules: recursive
 
       - name: Modify version
@@ -207,7 +213,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -215,7 +221,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"084ec164ac7865609ce85af6a0519be88db42037"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -239,17 +245,17 @@ jobs:
         run: |
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
-          curl -s --fail --show-error -u $USER:$PW -T arrow-$VERSION.zip  https://nightly.wujciak.de:8080/r/libarrow/bin/windows/
+          curl -s --fail --show-error -u $USER:$PW -T arrow-$VERSION.zip  'https://nightly.wujciak.de:8080/r/libarrow/bin/windows/'
 
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-windows-libarrow
-          path: build/arrow-*20220512.zip 
+          path: build/arrow-*.zip 
 
   r-packages:
     if: true
-    #needs: [source, windows-cpp]
+    needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
     strategy:
@@ -269,7 +275,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 084ec164ac7865609ce85af6a0519be88db42037
+          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
           submodules: recursive
 
       - name: Modify version
@@ -277,16 +283,16 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220512"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"20220513"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
           # Pin the git commit in the formula to match
-          cd tools
-          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"084ec164ac7865609ce85af6a0519be88db42037"'"/' apache-arrow.rb
-          rm -f apache-arrow.rb.bak
+          # cd tools
+          # sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
+          # rm -f apache-arrow.rb.bak
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -330,14 +336,18 @@ jobs:
           PW: ${{ secrets.ASF_KEY }}
           
         run: |
+          VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           REPO_PATH=$(Rscript -e "cat(contrib.url('', type = 'binary'))")
+          echo $VERSION
           echo $REPO_PATH
-          curl -s --fail --show-error -u $USER:$PW -T arrow_*20220512.zip  https://nightly.wujciak.de:8080$REPO_PATH/
+
+          ls
+          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.zip  https://nightly.wujciak.de:8080$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
           name: r-${{ matrix.config.os}}-pkg
-          path: arrow_*20220512.zip 
+          path: arrow_*.zip 
 
   test-linux-binary:
     if: true
