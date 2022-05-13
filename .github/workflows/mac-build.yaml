@@ -1,12 +1,15 @@
 name: Mac
 on:
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
-        - name: Detect M1
-          run: |
-            arch
-            arch -arm64 brew install rclone
+        - uses: assignUser/actions/setup-r@detect-m1
+          env:
+            ON_M1: true
+          with:
+            r-version: 4.1
+            rtools-version: 40
+            Ncpus: 2
