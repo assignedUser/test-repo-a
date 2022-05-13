@@ -9,9 +9,9 @@ jobs:
         - name: Detect M1
           run: |
             echo $(uname -m)
-            if [[ $(uname -m) == 'arm64' ]]; then
+           # if [[ $(uname -m) == 'arm64' ]]; then
               echo "ON_M1=true" >> $GITHUB_ENV
-            fi
+            #fi
         - uses: assignUser/actions/setup-r@detect-m1
           with:
             r-version: 4.1
