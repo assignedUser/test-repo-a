@@ -35,8 +35,8 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: apache/arrow
-          ref: d9346927a0cb79c53464c43c9f991907fca63f10
+          repository: assignUser/arrow
+          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
           submodules: recursive
 
       - name: Modify version
@@ -52,7 +52,8 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"d9346927a0cb79c53464c43c9f991907fca63f10"'"/' apache-arrow.rb
+          #TODO revert before merge
+          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -72,7 +73,7 @@ jobs:
         run: | 
           sudo apt update && sudo apt install davfs2
           mkdir nightly
-          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
+          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - name: Upload Source Package
@@ -133,7 +134,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
+          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
           submodules: recursive
 
       - name: Modify version
@@ -149,7 +150,8 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
+          #TODO revert before merge
+          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -170,8 +172,8 @@ jobs:
       - name: Bundle and upload
         shell: bash
         env:
-          USER: ${{ secrets.ASF_USER }}
-          PW: ${{ secrets.ASF_KEY }}
+          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
+          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
         run: |
           cd arrow/r
           VERSION=$(grep ^Version DESCRIPTION | sed s/Version:\ //)
@@ -199,7 +201,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 2d6517bf0a150927799dae6b597667f4bc7d28ce
+          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
           submodules: recursive
 
       - name: Modify version
@@ -215,7 +217,8 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"2d6517bf0a150927799dae6b597667f4bc7d28ce"'"/' apache-arrow.rb
+          #TODO revert before merge
+          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -234,8 +237,8 @@ jobs:
       - name: Upload Binary
         shell: bash
         env:
-          USER: ${{ secrets.ASF_USER }}
-          PW: ${{ secrets.ASF_KEY }}
+          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
+          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
         run: |
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           cd build
@@ -249,7 +252,7 @@ jobs:
 
   r-packages:
     if: true
-    #needs: [source, windows-cpp]
+    needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
     strategy:
@@ -268,8 +271,8 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: apache/arrow
-          ref: d9346927a0cb79c53464c43c9f991907fca63f10
+          repository: assignUser/arrow
+          ref: 1e8a8dbe57908de6c67ded3ccb91680d05d50d01
           submodules: recursive
 
       - name: Modify version
@@ -283,10 +286,11 @@ jobs:
           rm -f DESCRIPTION.bak
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
-           # Pin the git commit in the formula to match
-           cd tools
-           sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"d9346927a0cb79c53464c43c9f991907fca63f10"'"/' apache-arrow.rb
-           rm -f apache-arrow.rb.bak
+          # Pin the git commit in the formula to match
+          cd tools
+          #TODO revert before merge
+          sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"1e8a8dbe57908de6c67ded3ccb91680d05d50d01"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -326,17 +330,14 @@ jobs:
       - name: Upload package
         shell: bash
         env:
-          USER: ${{ secrets.ASF_USER }}
-          PW: ${{ secrets.ASF_KEY }}
+          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
+          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
           
         run: |
           VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
-          REPO_PATH=r/$(Rscript -e "cat(contrib.url('', type = 'binary'))")
-          echo $VERSION
-          echo $REPO_PATH
+          REPO_PATH=r$(Rscript -e "cat(contrib.url('', type = 'binary'))")
 
-          ls
-          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.zip  https://nightly.wujciak.de:8080/$REPO_PATH/
+          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.zip https://nightly.wujciak.de:8080/$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
@@ -447,7 +448,7 @@ jobs:
         run: | 
           sudo apt update && sudo apt install davfs2
           mkdir nightly
-          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
+          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - name: Update Repo
@@ -466,4 +467,3 @@ jobs:
           }
 
       - run: sudo umount nightly
-
