@@ -8,7 +8,5 @@ jobs:
     steps:
         - name: Detect M1
           run: |
-            if [[ $(uname -m) == 'arm64' ]]; then
-              echo "On M1"
-            fi
+            arch
             arch -arm64 brew install rclone
