@@ -24,12 +24,6 @@ on:
   workflow_dispatch:
   push:
 
-name: Crossbow
-on:
-  push:
-    branches:
-      - "*-github-*"
-
 
 jobs:
   source:
