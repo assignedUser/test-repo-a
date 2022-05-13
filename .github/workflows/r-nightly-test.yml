@@ -283,7 +283,7 @@ jobs:
           rm -f DESCRIPTION.bak
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
-           Pin the git commit in the formula to match
+           # Pin the git commit in the formula to match
            cd tools
            sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"d9346927a0cb79c53464c43c9f991907fca63f10"'"/' apache-arrow.rb
            rm -f apache-arrow.rb.bak
