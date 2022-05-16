@@ -8,6 +8,14 @@ on:
   workflow_dispatch:
   #push:
 
+# NOTE: must set "Crossbow" as name to have the badge links working in the
+# github comment reports!
+name: Crossbow
+on:
+  push:
+    branches:
+      - "*-github-*"
+
 
 jobs:
   source:
@@ -23,7 +31,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: 299eea5687f76e43ca71f06e7f6b44076eaea47e
           submodules: recursive
 
       - name: Modify version
@@ -38,9 +46,9 @@ jobs:
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
           # Pin the git commit in the formula to match
-          #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' apache-arrow.rb
-          #rm -f apache-arrow.rb.bak
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"299eea5687f76e43ca71f06e7f6b44076eaea47e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
 
       - name: Save Version
         id: save-version
@@ -127,7 +135,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: 299eea5687f76e43ca71f06e7f6b44076eaea47e
           submodules: recursive
 
       - name: Modify version
@@ -142,9 +150,9 @@ jobs:
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
           # Pin the git commit in the formula to match
-          #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' apache-arrow.rb
-          #rm -f apache-arrow.rb.bak
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"299eea5687f76e43ca71f06e7f6b44076eaea47e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -196,7 +204,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: 299eea5687f76e43ca71f06e7f6b44076eaea47e
           submodules: recursive
 
       - name: Modify version
@@ -211,9 +219,9 @@ jobs:
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
           # Pin the git commit in the formula to match
-          #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' apache-arrow.rb
-          #rm -f apache-arrow.rb.bak
+          cd tools
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"299eea5687f76e43ca71f06e7f6b44076eaea47e"'"/' apache-arrow.rb
+          rm -f apache-arrow.rb.bak
 
 
       - uses: r-lib/actions/setup-r@v2
@@ -361,7 +369,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
-          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
 
 
   test-source:
@@ -389,7 +397,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
-          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
 
 
       - name: Retry with verbosity if that failed
@@ -406,7 +414,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
-          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
 
 
   update-repo:
