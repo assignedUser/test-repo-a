@@ -1,27 +1,9 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
 
 
 # NOTE: must set "Crossbow" as name to have the badge links working in the
 # github comment reports!
 name: Crossbow
-
 on:
-  workflow_dispatch:
   push:
 
 
@@ -29,23 +11,25 @@ jobs:
   source:
     name: Source Package
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.save-version.outputs.version }}
+      date: ${{ steps.save-version.outputs.date }}
     steps:
       - name: Checkout Arrow
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
           path: arrow
-          repository: assignUser/arrow
-          ref: 9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1
+          repository: apache/arrow
+          ref: 0cc320c6e3b1b1298fe887c4bafe13fd0621e906
           submodules: recursive
 
       - name: Modify version
         shell: bash
         run: |
           cd arrow/r
-          # TODO use a more robust solution 20220513
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -53,9 +37,15 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"0cc320c6e3b1b1298fe887c4bafe13fd0621e906"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
+      - name: Save Version
+        id: save-version
+        shell: bash
+        run: | 
+          echo "::set-output name=version::$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)""
+          echo "::set-output name=date:$(date +%Y%m%d)"
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -118,6 +108,7 @@ jobs:
   linux-cpp:
     name: C++ Binary ${{ matrix.config.os }}-${{ matrix.config.version }}
     runs-on: ubuntu-latest
+    needs: source
     strategy:
       fail-fast: false
       matrix:
@@ -133,17 +124,16 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: assignUser/arrow
-          ref: 9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1
+          repository: apache/arrow
+          ref: 0cc320c6e3b1b1298fe887c4bafe13fd0621e906
           submodules: recursive
 
       - name: Modify version
         shell: bash
         run: |
           cd arrow/r
-          # TODO use a more robust solution 20220513
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"${{needs.source.outputs.date}}"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -151,7 +141,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"0cc320c6e3b1b1298fe887c4bafe13fd0621e906"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -174,10 +164,12 @@ jobs:
         env:
           USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
           PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
+          VERSION: ${{needs.source.outputs.version}}
         run: |
           cd arrow/r
           VERSION=$(grep ^Version DESCRIPTION | sed s/Version:\ //)
           export PKG_FILE="arrow-${VERSION}.zip"
+
           cd libarrow/dist
           # These files were created by the docker user so we have to sudo to get them
           sudo -E zip -r $PKG_FILE lib/ include/
@@ -192,6 +184,7 @@ jobs:
 
   windows-cpp:
     name: C++ Binary Windows RTools (40 only)
+    needs: source
     runs-on: windows-latest
     steps:
       - run: git config --global core.autocrlf false
@@ -200,17 +193,16 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: assignUser/arrow
-          ref: 9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1
+          repository: apache/arrow
+          ref: 0cc320c6e3b1b1298fe887c4bafe13fd0621e906
           submodules: recursive
 
       - name: Modify version
         shell: bash
         run: |
           cd arrow/r
-          # TODO use a more robust solution 20220513
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"needs.source.outputs.date"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -218,7 +210,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"0cc320c6e3b1b1298fe887c4bafe13fd0621e906"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -262,36 +254,11 @@ jobs:
           - windows-latest
           # This is newer than what CRAN builds on, but Travis is no longer an option for us, so...
           - macos-10.15
+          # - devops-managed # No M1 until the runner application runs native
         r_version:
           - { rtools: 40, r: "4.1" }
           - { rtools: 42, r: "4.2" }
     steps:
-      - name: Checkout Arrow
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-          path: arrow
-          repository: assignUser/arrow
-          ref: 9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1
-          submodules: recursive
-
-      - name: Modify version
-        shell: bash
-        run: |
-          cd arrow/r
-          # TODO use a more robust solution 20220513
-          sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
-            DESCRIPTION
-          head DESCRIPTION
-          rm -f DESCRIPTION.bak
-          cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
-          
-          # Pin the git commit in the formula to match
-          cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"9dd5b2d6da7f475f48c4ef9f8e7552213ebca1b1"'"/' apache-arrow.rb
-          rm -f apache-arrow.rb.bak
-
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r_version.r }}
@@ -332,12 +299,12 @@ jobs:
         env:
           USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
           PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
-          
+          VERSION: ${{needs.source.outputs.version}}
         run: |
-          VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
           REPO_PATH=r$(Rscript -e "cat(contrib.url('', type = 'binary'))")
+          EXT=$(if [[ ${{ matrix.platform }} == windows* ]]; then echo zip; else echo tgz; fi)
 
-          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.* https://nightly.wujciak.de:8080/$REPO_PATH/
+          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.$EXT https://nightly.wujciak.de:8080/$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
@@ -375,11 +342,13 @@ jobs:
             apt-get install -y libcurl4-openssl-dev libssl-dev
           fi
 
+          # Add R-devel to PATH
+          echo "/opt/R-devel/bin" >> $GITHUB_PATH
+
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
           LIBARROW_BINARY: "TRUE"
-        #TODO ask neal about this: /opt/R-devel/Rscript {0}
         shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
@@ -390,6 +359,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
 
 
   test-source:
@@ -417,6 +387,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
 
 
       - name: Retry with verbosity if that failed
@@ -433,6 +404,8 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          stopifnot(packageVersion("arrow") == ${{needs.source.outputs.version}})
+
 
   update-repo:
     needs: r-packages
@@ -454,16 +427,17 @@ jobs:
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
-          on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
-
           bin_dirs <- paste0("nightly/r/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
 
           for(dir in bin_dirs) {
+            win_bin <- grepl("windows", dir)
+
             if(file.exists(paste0(dir,"/PACKAGES"))) {
-              tools::update_PACKAGES(dir , type = ifelse(on_windows, "win.binary", "mac.binary"), latestOnly = FALSE)
+              tools::update_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
             } else {
-              tools::write_PACKAGES(dir , type = ifelse(on_windows, "win.binary", "mac.binary"), latestOnly = FALSE)
+              tools::write_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
             }
+
           }
 
       - run: sudo umount nightly
