@@ -5,6 +5,8 @@
 name: Crossbow
 on:
   push:
+  workflow_dispatch:
+  #push:
 
 
 jobs:
