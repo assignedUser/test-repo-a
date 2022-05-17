@@ -316,7 +316,7 @@ jobs:
 
   test-linux-binary:
     if: true
-    needs: [source, linux-cpp]
+    #needs: [source, linux-cpp]
     name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
@@ -348,6 +348,7 @@ jobs:
           # Add R-devel to PATH
           echo "/opt/R-devel/bin" >> $GITHUB_PATH
 
+      - run: echo 'options(arrow.dev_repo = "https://nightly.wujciak.de/r")' > .Rprofile
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
@@ -355,7 +356,6 @@ jobs:
         shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
-          options(arrow.dev_repo = "https://nightly.wujciak.de/r")
 
           install.packages(
             "arrow",
