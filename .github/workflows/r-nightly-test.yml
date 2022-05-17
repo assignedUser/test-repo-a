@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
           submodules: recursive
 
       - name: Modify version
@@ -38,7 +38,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' #apache-arrow.rb
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -126,7 +126,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
           submodules: recursive
 
       - name: Modify version
@@ -142,7 +142,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' #apache-arrow.rb
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -195,7 +195,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: ebf0e00db702bef2f00621318df92f50cf3711e9
+          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
           submodules: recursive
 
       - name: Modify version
@@ -211,7 +211,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"ebf0e00db702bef2f00621318df92f50cf3711e9"'"/' #apache-arrow.rb
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
 
