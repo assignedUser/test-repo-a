@@ -356,7 +356,7 @@ jobs:
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           options(arrow.dev_repo = "https://nightly.wujciak.de/r")
-          
+
           install.packages(
             "arrow",
             repos = c("https://nightly.wujciak.de/r", getOption("repos")),
@@ -414,6 +414,7 @@ jobs:
 
   update-repo:
     needs: r-packages
+    if: always()
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
