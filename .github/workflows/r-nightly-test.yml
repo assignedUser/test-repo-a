@@ -413,7 +413,7 @@ jobs:
 
 
   update-repo:
-    #needs: r-packages
+    needs: r-packages
     if: always()
     name: Update PACKAGES
     runs-on: ubuntu-latest
