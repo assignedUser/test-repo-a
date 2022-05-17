@@ -30,7 +30,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date -d yesterday +%Y%m%d)"'/' \
+            's/(^Version: [0-9]+\.[0-9]+\.[0-9]+).*$/\1.'"$(date +%Y%m%d)"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -413,7 +413,7 @@ jobs:
 
 
   update-repo:
-    needs: r-packages
+    #needs: r-packages
     if: always()
     name: Update PACKAGES
     runs-on: ubuntu-latest
@@ -433,8 +433,8 @@ jobs:
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
-          bin_dirs <- paste0("nightly/r/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
-
+          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d$"))
+          print(bin_dirs)
           for(dir in bin_dirs) {
             win_bin <- grepl("windows", dir)
 
