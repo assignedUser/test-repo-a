@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
+          ref: 6bc2463420a9c24b02707939c38cbd17439e35ee
           submodules: recursive
 
       - name: Modify version
@@ -37,8 +37,8 @@ jobs:
           cp ../dev/tasks/homebrew-formulae/autobrew/apache-arrow.rb tools/apache-arrow.rb
           
           # Pin the git commit in the formula to match
-          cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
+          #cd tools
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"6bc2463420a9c24b02707939c38cbd17439e35ee"'"/' apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -126,7 +126,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
+          ref: 6bc2463420a9c24b02707939c38cbd17439e35ee
           submodules: recursive
 
       - name: Modify version
@@ -142,7 +142,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"6bc2463420a9c24b02707939c38cbd17439e35ee"'"/' apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -195,7 +195,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: f8d1a4216466b0a4f890340f752bf8448db76aa3
+          ref: 6bc2463420a9c24b02707939c38cbd17439e35ee
           submodules: recursive
 
       - name: Modify version
@@ -211,7 +211,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           #cd tools
-          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f8d1a4216466b0a4f890340f752bf8448db76aa3"'"/' #apache-arrow.rb
+          #sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"6bc2463420a9c24b02707939c38cbd17439e35ee"'"/' apache-arrow.rb
           #rm -f apache-arrow.rb.bak
 
 
@@ -316,7 +316,7 @@ jobs:
 
   test-linux-binary:
     if: true
-    #needs: [source, linux-cpp]
+    needs: [source, linux-cpp]
     name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
@@ -348,7 +348,10 @@ jobs:
           # Add R-devel to PATH
           echo "/opt/R-devel/bin" >> $GITHUB_PATH
 
-      - run: echo 'options(arrow.dev_repo = "https://nightly.wujciak.de/r")' > ~/.Rprofile
+      - name: Set dev repo
+        shell: bash
+        run: |
+          echo 'options(arrow.dev_repo = "https://nightly.wujciak.de/r")' >> ~/.Rprofile
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
@@ -356,7 +359,8 @@ jobs:
         shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
-          print(getOption("arrow.dev_repo"))
+          options(arrow.dev_repo = "https://nightly.wujciak.de/r")
+          
           install.packages(
             "arrow",
             repos = c("https://nightly.wujciak.de/r", getOption("repos")),
@@ -385,6 +389,8 @@ jobs:
         shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
+          options(arrow.dev_repo = "https://nightly.wujciak.de/r")
+          
           install.packages(
             "arrow",
             repos = c("https://nightly.wujciak.de/r", getOption("repos")),
@@ -402,6 +408,8 @@ jobs:
           ARROW_R_DEV: "TRUE"
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
+          options(arrow.dev_repo = "https://nightly.wujciak.de/r")
+          
           install.packages(
             "arrow",
             repos = c("https://nightly.wujciak.de/r", getOption("repos")),
@@ -409,7 +417,7 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
-          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}"")
+          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
 
 
   update-repo:
@@ -433,8 +441,8 @@ jobs:
       - name: Update Repo
         shell: sudo Rscript {0}
         run: |
-          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d$"))
-          print(bin_dirs)
+          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d"))
+
           for(dir in bin_dirs) {
             win_bin <- grepl("windows", dir)
 
