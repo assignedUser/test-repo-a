@@ -245,7 +245,7 @@ jobs:
 
   r-packages:
     if: true
-    needs: [source]
+    needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
     strategy:
