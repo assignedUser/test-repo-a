@@ -356,7 +356,7 @@ jobs:
         shell: Rscript {0}
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
-          pritn(getOption("arrow.dev_repo"))
+          print(getOption("arrow.dev_repo"))
           install.packages(
             "arrow",
             repos = c("https://nightly.wujciak.de/r", getOption("repos")),
