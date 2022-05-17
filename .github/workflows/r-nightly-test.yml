@@ -348,7 +348,7 @@ jobs:
           # Add R-devel to PATH
           echo "/opt/R-devel/bin" >> $GITHUB_PATH
 
-      - run: echo 'options(arrow.dev_repo = "https://nightly.wujciak.de/r")' > .Rprofile
+      - run: echo 'options(arrow.dev_repo = "https://nightly.wujciak.de/r")' > ~/.Rprofile
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
