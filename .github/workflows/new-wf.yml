@@ -1,0 +1,12 @@
+name: Workflow not on main
+
+on: 
+  push: 
+    branches: 
+      - push-wf
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Ha!"
