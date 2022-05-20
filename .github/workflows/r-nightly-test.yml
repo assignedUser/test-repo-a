@@ -13,7 +13,7 @@ env:
   # crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
   UPLOAD_PKG: true
   UPLOAD_LIBARROW: true
-  
+
 jobs:
   source:
     name: Source Package
@@ -471,7 +471,7 @@ jobs:
 
   update-repo:
     needs: r-packages
-    if: ('apache/arrow' == 'apache/arrow') && env.UPLOAD_PKG
+    if: ${{ ('apache/arrow' == 'apache/arrow') && env.UPLOAD_PKG }}
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
