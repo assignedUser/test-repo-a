@@ -9,16 +9,17 @@ on:
   #push:
 
 env:
-# prevent upload of R packages or libarrow binaries via param (e.g. for release)
-# crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
+  # prevent upload of R packages or libarrow binaries via param (e.g. for release)
+  # crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
   UPLOAD_PKG: true
   UPLOAD_LIBARROW: true
+  
 jobs:
   source:
     name: Source Package
     runs-on: ubuntu-latest
     # Block submissions via PR unless from a branch within apache/arrow e.g. for release 
-    if: 'apache/arrow' == 'apache/arrow'
+    if: ${{ 'apache/arrow' == 'apache/arrow' }}
     outputs:
       version: ${{ steps.save-version.outputs.version }}
       date: ${{ steps.save-version.outputs.date }}
