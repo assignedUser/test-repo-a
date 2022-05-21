@@ -13,13 +13,13 @@ env:
   # crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
   UPLOAD_PKG: true
   UPLOAD_LIBARROW: true
-
+  
 jobs:
   source:
     name: Source Package
     runs-on: ubuntu-latest
     # Block submissions via PR unless from a branch within apache/arrow e.g. for release 
-    if: ${{ 'apache/arrow' == 'apache/arrow' }}
+    if: 'apache/arrow' == 'apache/arrow'
     outputs:
       version: ${{ steps.save-version.outputs.version }}
       date: ${{ steps.save-version.outputs.date }}
@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: apache/arrow
-          ref: cc2265a358717f0039e428b4c8b217153dee54f0
+          ref: f4880ba7cf6cf1145a5165d0d2710fa339d57bbe
           submodules: recursive
 
       - name: Modify version
@@ -46,7 +46,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"cc2265a358717f0039e428b4c8b217153dee54f0"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f4880ba7cf6cf1145a5165d0d2710fa339d57bbe"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -66,7 +66,7 @@ jobs:
           cd arrow/r
           # Copy in the Arrow C++ source
           make sync-cpp
-          R CMD build --no-build-vignettes . 
+          R CMD build --no-build-vignettes .
 
       - name: Install davfs2 & Mount Repository
         if: env.UPLOAD_PKG && success()
@@ -148,7 +148,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: apache/arrow
-          ref: cc2265a358717f0039e428b4c8b217153dee54f0
+          ref: f4880ba7cf6cf1145a5165d0d2710fa339d57bbe
           submodules: recursive
 
       - name: Modify version
@@ -164,7 +164,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"cc2265a358717f0039e428b4c8b217153dee54f0"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f4880ba7cf6cf1145a5165d0d2710fa339d57bbe"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -221,7 +221,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: apache/arrow
-          ref: cc2265a358717f0039e428b4c8b217153dee54f0
+          ref: f4880ba7cf6cf1145a5165d0d2710fa339d57bbe
           submodules: recursive
 
       - name: Modify version
@@ -237,7 +237,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"cc2265a358717f0039e428b4c8b217153dee54f0"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"f4880ba7cf6cf1145a5165d0d2710fa339d57bbe"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -272,7 +272,7 @@ jobs:
           path: build/arrow-*.zip 
 
   r-packages:
-    if: true
+    if: 'apache/arrow' == 'apache/arrow'
     needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
@@ -344,7 +344,7 @@ jobs:
           path: arrow_*.zip 
 
   test-linux-binary:
-    if: true
+    if: 'apache/arrow' == 'apache/arrow'
     needs: [source, linux-cpp]
     name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
@@ -390,13 +390,6 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           options(arrow.dev_repo = "https://nightly.wujciak.de/r")
           
-          # Install dependencies by installing (yesterday's) binary, then removing it
-          install.packages(c("arrow", "cpp11"),
-            type = "binary",
-            repos = c("https://nightly.wujciak.de/r", "https://cloud.r-project.org")
-          )
-          remove.packages("arrow")
-          
           install.packages(
             "arrow",
             repos = getOption("arrow.dev_repo"),
@@ -404,11 +397,13 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+          # Our Version should also be > CRAN so we would detect a CRAN version here.
           stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
 
 
   test-source:
-    if: true
+    if: 'apache/arrow' == 'apache/arrow'
     needs: source
     name: Test linux source build
     runs-on: ubuntu-latest
@@ -426,13 +421,6 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           options(arrow.dev_repo = "https://nightly.wujciak.de/r")
           
-          # Install dependencies by installing (yesterday's) binary, then removing it
-          install.packages(c("arrow", "cpp11"),
-            type = "binary",
-            repos = c("https://nightly.wujciak.de/r", "https://cloud.r-project.org")
-          )
-          remove.packages("arrow")
-          
           install.packages(
             "arrow",
             repos = getOption("arrow.dev_repo"),
@@ -440,6 +428,8 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+          # Our Version should also be > CRAN so we would detect a CRAN version here.
           stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
 
 
@@ -452,13 +442,6 @@ jobs:
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           options(arrow.dev_repo = "https://nightly.wujciak.de/r")
           
-          # Install dependencies by installing (yesterday's) binary, then removing it
-          install.packages(c("arrow", "cpp11"),
-            type = "binary",
-            repos = c("https://nightly.wujciak.de/r", "https://cloud.r-project.org")
-          )
-          remove.packages("arrow")
-          
           install.packages(
             "arrow",
             repos = getOption("arrow.dev_repo"),
@@ -466,12 +449,14 @@ jobs:
           )
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+          # Our Version should also be > CRAN so we would detect a CRAN version here.
           stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
 
 
   update-repo:
     needs: r-packages
-    if: ('apache/arrow' == 'apache/arrow') && 'env.UPLOAD_PKG' 
+    if: ('apache/arrow' == 'apache/arrow') && 'env.UPLOAD_PKG'
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
