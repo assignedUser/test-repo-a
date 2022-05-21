@@ -19,7 +19,7 @@ jobs:
     name: Source Package
     runs-on: ubuntu-latest
     # Block submissions via PR unless from a branch within apache/arrow e.g. for release 
-    if: 'apache/arrow' == 'apache/arrow'
+    if: ${{ 'apache/arrow' == 'apache/arrow' }}
     outputs:
       version: ${{ steps.save-version.outputs.version }}
       date: ${{ steps.save-version.outputs.date }}
@@ -272,7 +272,7 @@ jobs:
           path: build/arrow-*.zip 
 
   r-packages:
-    if: 'apache/arrow' == 'apache/arrow'
+    if: ${{ 'apache/arrow' == 'apache/arrow' }}
     needs: [source, windows-cpp]
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
@@ -344,7 +344,7 @@ jobs:
           path: arrow_*.zip 
 
   test-linux-binary:
-    if: 'apache/arrow' == 'apache/arrow'
+    if: ${{ 'apache/arrow' == 'apache/arrow' }}
     needs: [source, linux-cpp]
     name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
@@ -403,7 +403,7 @@ jobs:
 
 
   test-source:
-    if: 'apache/arrow' == 'apache/arrow'
+    if: ${{ 'apache/arrow' == 'apache/arrow' }}
     needs: source
     name: Test linux source build
     runs-on: ubuntu-latest
@@ -456,7 +456,7 @@ jobs:
 
   update-repo:
     needs: r-packages
-    if: ('apache/arrow' == 'apache/arrow') && 'env.UPLOAD_PKG'
+    if: ${{ ('apache/arrow' == 'apache/arrow') && 'env.UPLOAD_PKG' }} 
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
