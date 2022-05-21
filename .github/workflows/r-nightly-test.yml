@@ -140,7 +140,6 @@ jobs:
           - { os: centos, version: "7" }
     env:
       UBUNTU: ${{ matrix.config.version }}
-      R: 3.6
     steps:
       - name: Checkout Arrow
         uses: actions/checkout@v3
