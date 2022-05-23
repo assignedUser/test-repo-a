@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
+          ref: c8f201f2510431db7450191617a2d0f64b4076a4
           submodules: recursive
 
       - name: Modify version
@@ -45,7 +45,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -151,7 +151,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
+          ref: c8f201f2510431db7450191617a2d0f64b4076a4
           submodules: recursive
 
       - name: Modify version
@@ -167,7 +167,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -225,7 +225,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
+          ref: c8f201f2510431db7450191617a2d0f64b4076a4
           submodules: recursive
 
       - name: Modify version
@@ -241,7 +241,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -465,7 +465,7 @@ jobs:
         if: true
         shell: bash
         run: |
-          echo 'options(arrow.dev_repo = "file://${{ github.workspace }}/repo")' >> ~/.Rprofile
+          echo "options(arrow.dev_repo = 'file://$(pwd)/repo')" >> ~/.Rprofile
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
@@ -536,7 +536,7 @@ jobs:
         if: true
         shell: bash
         run: |
-          echo 'options(arrow.dev_repo = "file://${{ github.workspace }}/repo")' >> ~/.Rprofile
+          echo "options(arrow.dev_repo = 'file://$(pwd)/repo')" >> ~/.Rprofile
       - name: Install arrow from nightly repo
         env:
           # Test source build so be sure not to download a binary

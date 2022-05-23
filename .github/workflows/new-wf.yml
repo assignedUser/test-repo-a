@@ -3,7 +3,7 @@ name: Workflow not on main
 on: 
   push: 
     branches: 
-      - push-wf
+      - push-wf2
 
 jobs:
   test-linux-binary:
