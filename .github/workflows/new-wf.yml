@@ -57,27 +57,27 @@ jobs:
       - run: ls -R repo
         if: true
 
-      # - name: Set dev repo
-      #   if: true
-      #   shell: bash
-      #   run: |
-      #     echo 'options(arrow.dev_repo = "file://${{ github.workspace }}/repo")' >> ~/.Rprofile
-      # - name: Install arrow from our repo
-      #   env:
-      #     LIBARROW_BUILD: "FALSE"
-      #     LIBARROW_BINARY: "TRUE"
-      #   shell: Rscript {0}
-      #   run: |
-      #     source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
+      - name: Set dev repo
+        if: true
+        shell: bash
+        run: |
+          echo 'options(arrow.dev_repo = "file://$(pwd)/repo")' >> ~/.Rprofile
+      - name: Install arrow from our repo
+        env:
+          LIBARROW_BUILD: "FALSE"
+          LIBARROW_BINARY: "TRUE"
+        shell: Rscript {0}
+        run: |
+          source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           
-      #     install.packages(
-      #       "arrow",
-      #       repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
-      #       verbose = TRUE
-      #     )
+          install.packages(
+            "arrow",
+            repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
+            verbose = TRUE
+          )
           
-      #     library(arrow)
-      #     read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          library(arrow)
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
 
-      #     # Our Version should always be > CRAN so we would detect a CRAN version here.
-      #     stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
+          # Our Version should always be > CRAN so we would detect a CRAN version here.
+          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
