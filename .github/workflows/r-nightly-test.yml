@@ -321,6 +321,10 @@ jobs:
         with:
           name: r-src-pkg
           path: repo/src/contrib
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
       - run: ls -R repo
         if: true
 
@@ -340,8 +344,11 @@ jobs:
 
           # Setup local repo
           if (TRUE) {
-            tools::write_PACKAGES("repo/src/contrib", type = "source")
-            dev_repo <- "file://${{ github.workspace }}/repo"
+            dev_repo <- paste0(
+              ifelse(on_windows, "file:", "file://"),
+              "${{ github.workspace }}",
+              ifelse(on_windows, "\\", "/"),
+              "repo")
           }
           options(arrow.dev_repo = dev_repo)
           
@@ -443,6 +450,10 @@ jobs:
         with:
           name: r-src-pkg
           path: repo/src/contrib
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
       - run: ls -R repo
         if: true
 
@@ -459,15 +470,12 @@ jobs:
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           
-          if (TRUE) {
-            tools::write_PACKAGES("repo/src/contrib", type = "source")
-          }
-
           install.packages(
             "arrow",
             repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
             verbose = TRUE
           )
+          
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
 
@@ -513,6 +521,10 @@ jobs:
         with:
           name: r-src-pkg
           path: repo/src/contrib
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
       - run: ls -R repo
         if: true
 
@@ -529,15 +541,12 @@ jobs:
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           
-          if (TRUE) {
-            tools::write_PACKAGES("repo/src/contrib", type = "source")
-          }
-
           install.packages(
             "arrow",
             repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
             verbose = TRUE
           )
+          
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
 
@@ -553,15 +562,12 @@ jobs:
         run: |
           source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
           
-          if (TRUE) {
-            tools::write_PACKAGES("repo/src/contrib", type = "source")
-          }
-
           install.packages(
             "arrow",
             repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
             verbose = TRUE
           )
+          
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
 
