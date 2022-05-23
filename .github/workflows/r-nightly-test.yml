@@ -1,15 +1,20 @@
 
+
+# NOTE: must set "Crossbow" as name to have the badge links working in the
+# github comment reports!
 name: Crossbow
 on:
   push:
+  workflow_dispatch:
+  #push:
 
 
 
 env:
   # prevent upload of R packages or libarrow binaries via param (e.g. for release)
-  # crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
-  UPLOAD_PKG: env.UPLOAD_PKG == 'true' && success() && false
-  UPLOAD_LIBARROW: env.UPLOAD_LIBARROW == 'true' && success() && false
+  # crossbow submit --param upload_pkgs=false --param upload_libs=false r-nightly-packages
+  UPLOAD_PKG: true
+  UPLOAD_LIBARROW: true
   
 jobs:
   source:
@@ -577,3 +582,62 @@ jobs:
 
       - name: Install davfs2 & Mount Repository
         run: | 
+          sudo apt update && sudo apt install davfs2
+
+          # Create mount point
+          mkdir nightly
+
+          # make credentials available
+          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
+
+          # mount with read&write access
+          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
+
+      - name: Update Repository Index
+        shell: sudo Rscript {0}
+        run: |
+          # Only keep 14 versions per os/R-version
+          prune <- function(dir, keep_n = 14) {
+            files <- list.files(dir, pattern = "^arrow", full.names = TRUE)
+            n_repo <- length(files)
+
+            if (n_repo > keep_n) {
+              info <- file.info(files)
+              info <- info[
+                order(
+                  as.Date(info$mtime, format = "%d/%m/%Y"),
+                  decreasing = TRUE
+                ),
+              ]
+              excess <- tail(rownames(info), n_repo - keep_n)
+              file.remove(excess)
+            }
+          }
+
+          # Update & prune R repository
+          
+          # find all dirs that end in R verion number
+          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d$"))
+          
+          for(dir in bin_dirs) {
+            win_bin <- grepl("windows", dir)
+            
+            prune(dir)
+
+            if(file.exists(paste0(dir,"/PACKAGES"))) {
+              tools::update_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
+            } else {
+              tools::write_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
+            }
+
+          }
+
+          # prune libarrow 
+          lib_dirs <- list.dirs("nightly/r/libarrow/bin")
+          lib_dirs <- lib_dirs[ grep("bin/.+", lib_dirs)]
+
+          for(dir in lib_dirs) {
+            prune(dir)
+          }
+      - run: sudo umount nightly
+
