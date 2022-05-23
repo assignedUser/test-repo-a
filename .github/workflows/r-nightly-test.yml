@@ -1,19 +1,15 @@
 
-
-# NOTE: must set "Crossbow" as name to have the badge links working in the
-# github comment reports!
 name: Crossbow
 on:
   push:
-  workflow_dispatch:
-  #push:
+
 
 
 env:
   # prevent upload of R packages or libarrow binaries via param (e.g. for release)
   # crossbow submit --param upload_pkg=false --param upload_libarrow=false r-nightly-packages
-  UPLOAD_PKG: env.UPLOAD_PKG && success() && false
-  UPLOAD_LIBARROW: env.UPLOAD_LIBARROW && success() && false
+  UPLOAD_PKG: env.UPLOAD_PKG == 'true' && success() && false
+  UPLOAD_LIBARROW: env.UPLOAD_LIBARROW == 'true' && success() && false
   
 jobs:
   source:
@@ -68,7 +64,7 @@ jobs:
           R CMD build --no-build-vignettes .
 
       - name: Install davfs2 & Mount Repository
-        if: ${{ env.UPLOAD_PKG && success() && false }}
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         run: | 
           sudo apt update && sudo apt install davfs2
 
@@ -82,7 +78,7 @@ jobs:
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - name: Upload Source Package
-        if: ${{ env.UPLOAD_PKG && success() && false }}
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         shell: bash
         run: | 
           # ensure repo structure is set up, this job is the fastest and should fix any issue before the other jobs try
@@ -106,7 +102,7 @@ jobs:
           sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.2
             sudo cp arrow/r/arrow_*.tar.gz nightly/r/src/contrib
       - name: Update Repository Index
-        if: ${{ env.UPLOAD_PKG && success() && false }}
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         shell: sudo Rscript {0}
         run: |
           if(file.exists("nightly/r/src/contrib/PACKAGES")) {
@@ -117,7 +113,7 @@ jobs:
 
       - name: Unmount Repository
         # ensures all changes are written
-        if: ${{ env.UPLOAD_PKG && success() && false }}
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         shell: bash
         run: sudo umount nightly
 
@@ -191,7 +187,7 @@ jobs:
           sudo -E zip -r $PKG_FILE lib/ include/
       
       - name: Upload libarrow
-        if: ${{ env.UPLOAD_LIBARROW && success() && false }}
+        if: ${{ env.UPLOAD_LIBARROW == 'true' && success() && false }}
         shell: bash
         env:
           USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
@@ -253,7 +249,7 @@ jobs:
         run: arrow/ci/scripts/r_windows_build.sh
 
       - name: Upload Binary
-        if: ${{ env.UPLOAD_LIBARROW && success() && false }}
+        if: ${{ env.UPLOAD_LIBARROW == 'true' && success() && false }}
         shell: bash
         env:
           USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
@@ -364,7 +360,7 @@ jobs:
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
       - name: Upload package
-        if: ${{ env.UPLOAD_PKG && success() && false }}
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         shell: bash
         env:
           USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
@@ -570,7 +566,7 @@ jobs:
 
   update-repo:
     needs: r-packages
-    if: ${{ env.UPLOAD_PKG && success() && false }}
+    if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
@@ -581,62 +577,3 @@ jobs:
 
       - name: Install davfs2 & Mount Repository
         run: | 
-          sudo apt update && sudo apt install davfs2
-
-          # Create mount point
-          mkdir nightly
-
-          # make credentials available
-          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
-
-          # mount with read&write access
-          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
-
-      - name: Update Repository Index
-        shell: sudo Rscript {0}
-        run: |
-          # Only keep 14 versions per os/R-version
-          prune <- function(dir, keep_n = 14) {
-            files <- list.files(dir, pattern = "^arrow", full.names = TRUE)
-            n_repo <- length(files)
-
-            if (n_repo > keep_n) {
-              info <- file.info(files)
-              info <- info[
-                order(
-                  as.Date(info$mtime, format = "%d/%m/%Y"),
-                  decreasing = TRUE
-                ),
-              ]
-              excess <- tail(rownames(info), n_repo - keep_n)
-              file.remove(excess)
-            }
-          }
-
-          # Update & prune R repository
-          
-          # find all dirs that end in R verion number
-          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d$"))
-          
-          for(dir in bin_dirs) {
-            win_bin <- grepl("windows", dir)
-            
-            prune(dir)
-
-            if(file.exists(paste0(dir,"/PACKAGES"))) {
-              tools::update_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
-            } else {
-              tools::write_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
-            }
-
-          }
-
-          # prune libarrow 
-          lib_dirs <- list.dirs("nightly/r/libarrow/bin")
-          lib_dirs <- lib_dirs[ grep("bin/.+", lib_dirs)]
-
-          for(dir in lib_dirs) {
-            prune(dir)
-          }
-      - run: sudo umount nightly
-
