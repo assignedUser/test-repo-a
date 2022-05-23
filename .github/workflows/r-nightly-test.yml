@@ -9,7 +9,6 @@ on:
   #push:
 
 
-
 env:
   # prevent upload of R packages or libarrow binaries via param (e.g. for release)
   # crossbow submit --param upload_pkgs=false --param upload_libs=false r-nightly-packages
@@ -571,7 +570,7 @@ jobs:
 
   update-repo:
     needs: r-packages
-    if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
+    if: true && !cancelled()
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
@@ -581,6 +580,8 @@ jobs:
           install-r: false
 
       - name: Install davfs2 & Mount Repository
+        # We have to add this to every step because env is not availble in the job level "if"
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         run: | 
           sudo apt update && sudo apt install davfs2
 
@@ -594,6 +595,7 @@ jobs:
           sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
 
       - name: Update Repository Index
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
         shell: sudo Rscript {0}
         run: |
           # Only keep 14 versions per os/R-version
@@ -640,4 +642,5 @@ jobs:
             prune(dir)
           }
       - run: sudo umount nightly
+        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
 
