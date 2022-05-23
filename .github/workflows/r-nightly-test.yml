@@ -4,7 +4,7 @@
 # github comment reports!
 name: Crossbow
 on:
-  #push:
+  push:
   workflow_dispatch:
 
 
