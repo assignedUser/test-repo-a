@@ -9,6 +9,7 @@ on:
   #push:
 
 
+
 env:
   # prevent upload of R packages or libarrow binaries via param (e.g. for release)
   # crossbow submit --param upload_pkgs=false --param upload_libs=false r-nightly-packages
@@ -297,19 +298,19 @@ jobs:
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && (matrix.platform == 'windows-latest') }}
+        if: ${{ true && (matrix.platform == 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-windows-libarrow
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && (matrix.platform != 'windows-latest') }}
+        if: ${{ true && (matrix.platform != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && (matrix.platform != 'windows-latest') }}
+        if: ${{ true && (matrix.platform != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
@@ -419,19 +420,19 @@ jobs:
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && ('ubuntu-latest' == 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' == 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-windows-libarrow
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
@@ -489,19 +490,19 @@ jobs:
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && ('ubuntu-latest' == 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' == 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
           name: r-windows-libarrow
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
+        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
