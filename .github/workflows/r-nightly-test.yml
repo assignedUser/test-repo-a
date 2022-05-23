@@ -329,7 +329,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
@@ -458,7 +458,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
@@ -529,7 +529,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
