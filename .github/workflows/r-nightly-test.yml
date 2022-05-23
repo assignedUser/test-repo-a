@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: b2abb654beb91cce3493deb1a964989859683903
+          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
           submodules: recursive
 
       - name: Modify version
@@ -46,7 +46,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"b2abb654beb91cce3493deb1a964989859683903"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -110,9 +110,15 @@ jobs:
         shell: sudo Rscript {0}
         run: |
           if(file.exists("nightly/r/src/contrib/PACKAGES")) {
-            tools::update_PACKAGES("nightly/r/src/contrib" , type = "source", latestOnly = FALSE)
+            tools::update_PACKAGES("nightly/r/src/contrib" ,
+              type = "source",
+              latestOnly = FALSE,
+              verbose = TRUE)
           } else {
-            tools::write_PACKAGES("nightly/r/src/contrib" , type = "source", latestOnly = FALSE)
+            tools::write_PACKAGES("nightly/r/src/contrib" ,
+              type = "source",
+              latestOnly = FALSE,
+              verbose = TRUE)
           }
 
       - name: Unmount Repository
@@ -146,7 +152,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: b2abb654beb91cce3493deb1a964989859683903
+          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
           submodules: recursive
 
       - name: Modify version
@@ -162,7 +168,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"b2abb654beb91cce3493deb1a964989859683903"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -220,7 +226,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: b2abb654beb91cce3493deb1a964989859683903
+          ref: 22da6f90df593645ebfe263dcfb606fc25adae25
           submodules: recursive
 
       - name: Modify version
@@ -236,7 +242,7 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"b2abb654beb91cce3493deb1a964989859683903"'"/' apache-arrow.rb
+          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"22da6f90df593645ebfe263dcfb606fc25adae25"'"/' apache-arrow.rb
           rm -f apache-arrow.rb.bak
 
 
@@ -323,7 +329,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
@@ -452,7 +458,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
@@ -523,7 +529,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source", verbose = TRUE)
       - run: ls -R repo
         if: true
 
@@ -633,9 +639,15 @@ jobs:
             prune(dir)
 
             if(file.exists(paste0(dir,"/PACKAGES"))) {
-              tools::update_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
+              tools::update_PACKAGES(dir ,
+                type = ifelse(win_bin, "win.binary", "mac.binary"),
+                latestOnly = FALSE,
+                verbose = TRUE)
             } else {
-              tools::write_PACKAGES(dir , type = ifelse(win_bin, "win.binary", "mac.binary"), latestOnly = FALSE)
+              tools::write_PACKAGES(dir,
+                type = ifelse(win_bin, "win.binary", "mac.binary"),
+                latestOnly = FALSE,
+                verbose = TRUE)
             }
 
           }
