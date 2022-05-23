@@ -304,13 +304,13 @@ jobs:
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
         if: ${{ true && (matrix.platform != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
         if: ${{ true && (matrix.platform != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
           path: repo/libarrow/bin/centos-7
@@ -426,13 +426,13 @@ jobs:
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
         if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
         if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
           path: repo/libarrow/bin/centos-7
@@ -496,13 +496,13 @@ jobs:
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
         if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-ubuntu-libarrow
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
         if: ${{ true && ('ubuntu-latest' != 'windows-latest') }}
-        uses: actions/download-artifact@v
+        uses: actions/download-artifact@v3
         with:
           name: r-centos-libarrow
           path: repo/libarrow/bin/centos-7
