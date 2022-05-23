@@ -41,14 +41,14 @@ jobs:
           pwd
           mkdir -p repo/libarrow/bin/ubuntu-18.04
           cd repo/libarrow/bin/ubuntu-18.04
-          wget https://nightly.wujciak.de/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220521.zip
+          curl -O https://nightly.wujciak.de/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220521.zip
     
       - name: Get src pkg
         run: |
           pwd
           mkdir -p repo/src/contrib
           cd repo/src/contrib
-          wget https://nightly.wujciak.de/r/src/contrib/arrow_8.0.0.20220521.tar.gz
+          curl -O https://nightly.wujciak.de/r/src/contrib/arrow_8.0.0.20220521.tar.gz
       - name: Update repo index
         shell: Rscript {0}
         run: |
