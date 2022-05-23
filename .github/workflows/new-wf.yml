@@ -61,7 +61,7 @@ jobs:
         if: true
         shell: bash
         run: |
-          echo 'options(arrow.dev_repo = "file://$(pwd)/repo")' >> ~/.Rprofile
+          echo "options(arrow.dev_repo = 'file://$(pwd)/repo')" >> ~/.Rprofile
       - name: Install arrow from our repo
         env:
           LIBARROW_BUILD: "FALSE"
