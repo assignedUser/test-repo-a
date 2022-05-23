@@ -6,7 +6,78 @@ on:
       - push-wf
 
 jobs:
-  test:
+  test-linux-binary:
+    name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - "rhub/ubuntu-gcc-release" # ubuntu-20.04 (focal)
+
     steps:
-      - run: echo "Ha!"
+      - name: Install system requirements
+        shell: bash
+        run: |
+          if [ "`which dnf`" ]; then
+            dnf install -y libcurl-devel openssl-devel
+          elif [ "`which yum`" ]; then
+            yum install -y libcurl-devel openssl-devel
+          elif [ "`which zypper`" ]; then
+            zypper install -y libcurl-devel libopenssl-devel
+          else
+            apt-get update
+            apt-get install -y libcurl4-openssl-dev libssl-dev
+          fi
+
+          # Add R-devel to PATH
+          echo "/opt/R-devel/bin" >> $GITHUB_PATH
+      - name: Setup local repo
+        shell: bash
+        run: mkdir repo 
+      - name: Get ubuntu binary
+        run: |
+          pwd
+          mkdir -p repo/libarrow/bin/ubuntu-18.04
+          cd repo/libarrow/bin/ubuntu-18.04
+          wget https://nightly.wujciak.de/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220521.zip
+    
+      - name: Get src pkg
+        run: |
+          pwd
+          mkdir -p repo/src/contrib
+          cd repo/src/contrib
+          wget https://nightly.wujciak.de/r/src/contrib/arrow_8.0.0.20220521.tar.gz
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          print(getwd())
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
+      - run: ls -R repo
+        if: true
+
+      # - name: Set dev repo
+      #   if: true
+      #   shell: bash
+      #   run: |
+      #     echo 'options(arrow.dev_repo = "file://${{ github.workspace }}/repo")' >> ~/.Rprofile
+      # - name: Install arrow from our repo
+      #   env:
+      #     LIBARROW_BUILD: "FALSE"
+      #     LIBARROW_BINARY: "TRUE"
+      #   shell: Rscript {0}
+      #   run: |
+      #     source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
+          
+      #     install.packages(
+      #       "arrow",
+      #       repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
+      #       verbose = TRUE
+      #     )
+          
+      #     library(arrow)
+      #     read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+
+      #     # Our Version should always be > CRAN so we would detect a CRAN version here.
+      #     stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
