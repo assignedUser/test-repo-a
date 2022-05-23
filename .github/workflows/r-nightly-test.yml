@@ -9,7 +9,6 @@ on:
   #push:
 
 
-
 env:
   # prevent upload of R packages or libarrow binaries via param (e.g. for release)
   # crossbow submit --param upload_pkgs=false --param upload_libs=false r-nightly-packages
@@ -324,7 +323,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
       - run: ls -R repo
         if: true
 
@@ -453,7 +452,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
       - run: ls -R repo
         if: true
 
@@ -524,7 +523,7 @@ jobs:
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES("${{ github.workspace }}/repo", type = "source")
+          tools::write_PACKAGES("${{ github.workspace }}/repo/src/contrib", type = "source")
       - run: ls -R repo
         if: true
 
