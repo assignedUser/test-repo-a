@@ -8,12 +8,7 @@ on:
   workflow_dispatch:
 
 
-env:
-  # prevent upload of R packages or libarrow binaries via param (e.g. for release)
-  # crossbow submit --param upload_pkgs=false --param upload_libs=false r-nightly-packages
-  UPLOAD_PKG: true
-  UPLOAD_LIBARROW: true
-  
+
 jobs:
   source:
     # This job will change the version to either the custom_version param or YMD format.
@@ -29,7 +24,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: c8f201f2510431db7450191617a2d0f64b4076a4
+          ref: dfd2422e3b4f9cdab2659479ab6e5215086a01b9
           submodules: recursive
 
       - name: Modify version
@@ -37,7 +32,7 @@ jobs:
         run: |
           cd arrow/r
           sed -i.bak -E -e \
-            's/(^Version: )([0-9]+\.[0-9]+\.[0-9]+).*$/\1\2.'"$(date +%Y%m%d)"'/' \
+            's/(^Version: )([0-9]+\.[0-9]+\.[0-9]+).*$/\1\2.'"20220525"'/' \
             DESCRIPTION
           head DESCRIPTION
           rm -f DESCRIPTION.bak
@@ -45,7 +40,11 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
+          if [ "true" == "true" ]; then 
+            sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          else
+            sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          fi
           rm -f apache-arrow.rb.bak
 
       - name: Save Version
@@ -66,70 +65,10 @@ jobs:
           make sync-cpp
           R CMD build --no-build-vignettes .
 
-      - name: Install davfs2 & Mount Repository
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        run: | 
-          sudo apt update && sudo apt install davfs2
-
-          # Create mount point
-          mkdir nightly
-
-          # make credentials available
-          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
-
-          # mount with read&write access
-          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
-
-      - name: Upload Source Package
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        shell: bash
-        run: | 
-          # ensure repo structure is set up, this job is the fastest and should fix any issue before the other jobs try
-          # to push into non existent folder with curl, which would fail silently. 
-          # Add any new architectures or R versions here
-          sudo mkdir -p nightly/r/src/contrib 
-     
-          sudo mkdir -p nightly/r/libarrow/bin/ubuntu-18.04
-     
-          sudo mkdir -p nightly/r/libarrow/bin/centos-7
-     
-          sudo mkdir -p nightly/r/libarrow/bin/windows
-     
-          sudo mkdir -p nightly/r/bin/windows/contrib/4.1
-          sudo mkdir -p nightly/r/bin/windows/contrib/4.2
-     
-          sudo mkdir -p nightly/r/bin/macosx/contrib/4.1
-          sudo mkdir -p nightly/r/bin/macosx/contrib/4.2
-     
-          sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.1
-          sudo mkdir -p nightly/r/bin/macosx/big-sur-arm64/contrib/4.2
-            sudo cp arrow/r/arrow_*.tar.gz nightly/r/src/contrib
-      - name: Update Repository Index
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        shell: sudo Rscript {0}
-        run: |
-          if(file.exists("nightly/r/src/contrib/PACKAGES")) {
-            tools::update_PACKAGES("nightly/r/src/contrib" ,
-              type = "source",
-              latestOnly = FALSE,
-              verbose = TRUE)
-          } else {
-            tools::write_PACKAGES("nightly/r/src/contrib" ,
-              type = "source",
-              latestOnly = FALSE,
-              verbose = TRUE)
-          }
-
-      - name: Unmount Repository
-        # ensures all changes are written
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        shell: bash
-        run: sudo umount nightly
-
       - name: Upload package artifact
         uses: actions/upload-artifact@v3
         with:
-          name: r-src-pkg
+          name: r-pkg_src
           path: arrow/r/arrow_*.tar.gz
 
   linux-cpp:
@@ -151,7 +90,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: c8f201f2510431db7450191617a2d0f64b4076a4
+          ref: dfd2422e3b4f9cdab2659479ab6e5215086a01b9
           submodules: recursive
 
       - name: Modify version
@@ -167,7 +106,11 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
+          if [ "true" == "true" ]; then 
+            sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          else
+            sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          fi
           rm -f apache-arrow.rb.bak
 
       - name: Set up Python
@@ -194,23 +137,11 @@ jobs:
           cd arrow/r/libarrow/dist
           # These files were created by the docker user so we have to sudo to get them
           sudo -E zip -r $PKG_FILE lib/ include/
-      
-      - name: Upload libarrow
-        if: ${{ env.UPLOAD_LIBARROW == 'true' && success() && false }}
-        shell: bash
-        env:
-          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
-          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
-          PKG_FILE: arrow-${{ needs.source.outputs.version }}.zip
-        run: |
-          cd arrow/r/libarrow/dist
-          export REPO_PATH=r/libarrow/bin/${{ matrix.config.os }}-${{ matrix.config.version }}
-          curl -s --fail --show-error -u $USER:$PW -T $PKG_FILE  https://nightly.wujciak.de:8080/$REPO_PATH/
           
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
-          name: r-${{ matrix.config.os}}-libarrow
+          name: r-libarrow-${{ matrix.config.os}}
           path: arrow/r/libarrow/dist/arrow-*.zip
 
   windows-cpp:
@@ -225,7 +156,7 @@ jobs:
           fetch-depth: 1
           path: arrow
           repository: assignUser/arrow
-          ref: c8f201f2510431db7450191617a2d0f64b4076a4
+          ref: dfd2422e3b4f9cdab2659479ab6e5215086a01b9
           submodules: recursive
 
       - name: Modify version
@@ -241,7 +172,11 @@ jobs:
           
           # Pin the git commit in the formula to match
           cd tools
-          sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"c8f201f2510431db7450191617a2d0f64b4076a4"'"/' apache-arrow.rb
+          if [ "true" == "true" ]; then 
+            sed -i.bak -E -e 's/apache\/arrow.git"$/assignUser\/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          else
+            sed -i.bak -E -e 's/arrow.git"$/arrow.git", :revision => "'"dfd2422e3b4f9cdab2659479ab6e5215086a01b9"'"/' apache-arrow.rb
+          fi
           rm -f apache-arrow.rb.bak
 
 
@@ -257,22 +192,10 @@ jobs:
           ARROW_HOME: "arrow"
         run: arrow/ci/scripts/r_windows_build.sh
 
-      - name: Upload Binary
-        if: ${{ env.UPLOAD_LIBARROW == 'true' && success() && false }}
-        shell: bash
-        env:
-          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
-          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
-        run: |
-          VERSION=$(grep ^Version arrow/r/DESCRIPTION | sed s/Version:\ //)
-
-          cd build
-          curl -s --fail --show-error -u $USER:$PW -T arrow-$VERSION.zip  https://nightly.wujciak.de:8080/r/libarrow/bin/windows/
-
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
-          name: r-windows-libarrow
+          name: r-libarrow-windows
           path: build/arrow-*.zip 
 
   r-packages:
@@ -298,39 +221,37 @@ jobs:
           rtools-version: ${{ matrix.r_version.rtools }}
           Ncpus: 2
       - name: Setup local repo
-        if: true
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && (matrix.platform == 'windows-latest') && true }}
+        if: ${{ (matrix.platform == 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-windows-libarrow
+          name: r-libarrow-windows
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && (matrix.platform != 'windows-latest') && true }}
+        if: ${{ (matrix.platform != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-ubuntu-libarrow
+          name: r-libarrow-ubuntu
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && (matrix.platform != 'windows-latest') && true }}
+        if: ${{ (matrix.platform != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-centos-libarrow
+          name: r-libarrow-centos
           path: repo/libarrow/bin/centos-7
       - name: Get src pkg
-        if: true
         uses: actions/download-artifact@v3
         with:
-          name: r-src-pkg
+          name: r-pkg_src
           path: repo/src/contrib
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
+          # getwd() is necessary as this macro is used within jobs using a docker container
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - run: ls -R repo
-        if: true
 
       - name: Build Binary
         shell: Rscript {0}
@@ -340,20 +261,16 @@ jobs:
           # Install dependencies by installing (yesterday's) binary, then removing it
           install.packages(c("arrow", "cpp11"),
             type = "binary",
-            repos = c("https://nightly.wujciak.de/r", "https://cloud.r-project.org")
+            repos = c("https://nightlies.apache.org/arrow/r", "https://cloud.r-project.org")
           )
           remove.packages("arrow")
 
-          dev_repo <- "https://nightly.wujciak.de/r"
-
           # Setup local repo
-          if (TRUE) {
-            dev_repo <- paste0(
-              ifelse(on_windows, "file:", "file://"),
-              "${{ github.workspace }}",
-              ifelse(on_windows, "\\", "/"),
-              "repo")
-          }
+          dev_repo <- paste0(
+            ifelse(on_windows, "file:", "file://"),
+            getwd(),
+            "/repo")
+          
           options(arrow.dev_repo = dev_repo)
           
           # Build
@@ -375,22 +292,11 @@ jobs:
           # Test
           library(arrow)
           read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
-      - name: Upload package
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        shell: bash
-        env:
-          USER: ${{ secrets.CROSSBOW_NIGHTLIES_USER }}
-          PW: ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}
-          VERSION: ${{ needs.source.outputs.version }}
-        run: |
-          REPO_PATH=r$(Rscript -e "cat(contrib.url('', type = 'binary'))")
-          EXT=$(if [[ ${{ matrix.platform }} == windows* ]]; then echo zip; else echo tgz; fi)
 
-          curl -s --fail --show-error -u $USER:$PW -T arrow_$VERSION.$EXT https://nightly.wujciak.de:8080/$REPO_PATH/
       - name: Upload binary artifact (temp)
         uses: actions/upload-artifact@v3
         with:
-          name: r-${{ matrix.platform }}-R${{ matrix.r_version.r }}-pkg
+          name: r-pkg_${{ matrix.platform }}_${{ matrix.r_version.r }}
           path: arrow_*
 
   test-linux-binary:
@@ -427,44 +333,43 @@ jobs:
           # Add R-devel to PATH
           echo "/opt/R-devel/bin" >> $GITHUB_PATH
       - name: Setup local repo
-        if: true
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && ('ubuntu-latest' == 'windows-latest') && true }}
+        if: ${{ ('ubuntu-latest' == 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-windows-libarrow
+          name: r-libarrow-windows
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && true }}
+        if: ${{ ('ubuntu-latest' != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-ubuntu-libarrow
+          name: r-libarrow-ubuntu
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && true }}
+        if: ${{ ('ubuntu-latest' != 'windows-latest') && true }}
         uses: actions/download-artifact@v3
         with:
-          name: r-centos-libarrow
+          name: r-libarrow-centos
           path: repo/libarrow/bin/centos-7
       - name: Get src pkg
-        if: true
         uses: actions/download-artifact@v3
         with:
-          name: r-src-pkg
+          name: r-pkg_src
           path: repo/src/contrib
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
+          # getwd() is necessary as this macro is used within jobs using a docker container
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - run: ls -R repo
-        if: true
 
       - name: Set dev repo
-        if: true
         shell: bash
         run: |
+          # It is important to use pwd here as this happens inside a container so the 
+          # normal github.workspace path is wrong.
           echo "options(arrow.dev_repo = 'file://$(pwd)/repo')" >> ~/.Rprofile
       - name: Install arrow from our repo
         env:
@@ -498,42 +403,39 @@ jobs:
         with:
           install-r: false
       - name: Setup local repo
-        if: true
         shell: bash
         run: mkdir repo 
       - name: Get windows binary
-        if: ${{ true && ('ubuntu-latest' == 'windows-latest') && false }}
+        if: ${{ ('ubuntu-latest' == 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
-          name: r-windows-libarrow
+          name: r-libarrow-windows
           path: repo/libarrow/bin/windows
       - name: Get ubuntu binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && false }}
+        if: ${{ ('ubuntu-latest' != 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
-          name: r-ubuntu-libarrow
+          name: r-libarrow-ubuntu
           path: repo/libarrow/bin/ubuntu-18.04
       - name: Get centos binary
-        if: ${{ true && ('ubuntu-latest' != 'windows-latest') && false }}
+        if: ${{ ('ubuntu-latest' != 'windows-latest') && false }}
         uses: actions/download-artifact@v3
         with:
-          name: r-centos-libarrow
+          name: r-libarrow-centos
           path: repo/libarrow/bin/centos-7
       - name: Get src pkg
-        if: true
         uses: actions/download-artifact@v3
         with:
-          name: r-src-pkg
+          name: r-pkg_src
           path: repo/src/contrib
       - name: Update repo index
         shell: Rscript {0}
         run: |
-          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib"), type = "source", verbose = TRUE)
+          # getwd() is necessary as this macro is used within jobs using a docker container
+          tools::write_PACKAGES(file.path(getwd(), "/repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - run: ls -R repo
-        if: true
 
       - name: Set dev repo
-        if: true
         shell: bash
         run: |
           echo "options(arrow.dev_repo = 'file://$(pwd)/repo')" >> ~/.Rprofile
@@ -579,85 +481,44 @@ jobs:
           stopifnot(packageVersion("arrow") == "${{needs.source.outputs.version}}")
 
 
-  update-repo:
+  upload-binaries:
     needs: r-packages
     if: true && !cancelled()
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
+    - name: Download Artifacts 
+      uses: actions/download-artifact@v3
+      with: 
+        path: artifacts
+    - name: Install R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        install-r: false
+    - name: Rename artifacts
+      shell: Rscript {0}
+      run: |
+        file_paths <- list.files("artifacts", include.dirs = FALSE, recursive = TRUE)
+        new_names <- paste0("binaries/", sub("/","-",file_paths))
+        dir.create("binaries", showWarnings = FALSE)
+        file.copy(paste0("artifacts/", file_paths), new_names)
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          install-r: false
-
-      - name: Install davfs2 & Mount Repository
-        # We have to add this to every step because env is not availble in the job level "if"
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        run: | 
-          sudo apt update && sudo apt install davfs2
-
-          # Create mount point
-          mkdir nightly
-
-          # make credentials available
-          sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.CROSSBOW_NIGHTLIES_USER }} ${{ secrets.CROSSBOW_NIGHTLIES_TOKEN }}" >> /etc/davfs2/secrets'
-
-          # mount with read&write access
-          sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
-
-      - name: Update Repository Index
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-        shell: sudo Rscript {0}
-        run: |
-          # Only keep 14 versions per os/R-version
-          prune <- function(dir, keep_n = 14) {
-            files <- list.files(dir, pattern = "^arrow", full.names = TRUE)
-            n_repo <- length(files)
-
-            if (n_repo > keep_n) {
-              info <- file.info(files)
-              info <- info[
-                order(
-                  as.Date(info$mtime, format = "%d/%m/%Y"),
-                  decreasing = TRUE
-                ),
-              ]
-              excess <- tail(rownames(info), n_repo - keep_n)
-              file.remove(excess)
-            }
-          }
-
-          # Update & prune R repository
-          
-          # find all dirs that end in R verion number
-          bin_dirs <- paste0("nightly/r/bin/", dir("nightly/r/bin", recursive = TRUE, include.dirs = TRUE, pattern = "\\d\\.\\d$"))
-          
-          for(dir in bin_dirs) {
-            win_bin <- grepl("windows", dir)
-            
-            prune(dir)
-
-            if(file.exists(paste0(dir,"/PACKAGES"))) {
-              tools::update_PACKAGES(dir ,
-                type = ifelse(win_bin, "win.binary", "mac.binary"),
-                latestOnly = FALSE,
-                verbose = TRUE)
-            } else {
-              tools::write_PACKAGES(dir,
-                type = ifelse(win_bin, "win.binary", "mac.binary"),
-                latestOnly = FALSE,
-                verbose = TRUE)
-            }
-
-          }
-
-          # prune libarrow 
-          lib_dirs <- list.dirs("nightly/r/libarrow/bin")
-          lib_dirs <- lib_dirs[ grep("bin/.+", lib_dirs)]
-
-          for(dir in lib_dirs) {
-            prune(dir)
-          }
-      - run: sudo umount nightly
-        if: ${{ env.UPLOAD_PKG == 'true' && success() && false }}
-
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Setup Crossbow
+      shell: bash
+      run: pip install -e arrow/dev/archery[crossbow-upload]
+    - name: Upload artifacts
+      shell: bash
+      run: |
+        archery crossbow \
+        --queue-path $(pwd) \
+        --queue-remote https://github.com/assignUser/crossbow \
+        upload-artifacts \
+        --sha None \
+        --tag None \
+        "binaries/r-*"
+      env:
+        CROSSBOW_GITHUB_TOKEN: ${{ secrets.CROSSBOW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
