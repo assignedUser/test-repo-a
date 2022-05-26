@@ -95,7 +95,7 @@ jobs:
               path <- paste0("repo/bin/", match[[3]], "/contrib/", match[[4]])
               path <- sub("macos", "macosx", path)
               dir.create(path, recursive = TRUE)
-              file <- list.files(art_path, pattern = paste0(matches[[1]], "*"), full.names = TRUE)
+              file <- list.files(art_path, pattern = paste0(match[[1]], "*"), full.names = TRUE)
 
               file.copy(file, paste0(path, "/", match[[5]]))
               tools::write_PACKAGES(path, type = paste0(substring(match[[3]], 1, 3), ".binary"), verbose = TRUE)
