@@ -20,8 +20,8 @@ name: Upload R Nightly builds
 on:
   workflow_dispatch:
     inputs:
-      jobid:
-        description: Job id to use.
+      prefix:
+        description: Job prefix to use.
         required: false
         default: ''
 
