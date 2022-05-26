@@ -18,23 +18,27 @@
 name: Upload R Nightly builds
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       prefix:
-        description: Job prefix to use.
+        description: Job id to use.
         required: false
         default: ''
+  schedule:
+    #Crossbow packagin runs at 0 8 * * *
+    - cron: '0 14 * * *'
 
 jobs:
   upload:
     env:
-      JOBID: ${{ github.event.inputs.prefix || ''}}
+      PREFIX: ${{ github.event.inputs.prefix || ''}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Arrow
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           path: arrow
           repository: apache/arrow
           ref: master
@@ -42,10 +46,10 @@ jobs:
       - name: Checkout Crossbow
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           path: crossbow
           repository: ursacomputing/crossbow
-          ref: master        
+          ref: master 
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
@@ -56,13 +60,12 @@ jobs:
         run: pip install -e arrow/dev/archery[all]
       - run: mkdir -p binaries
       - name: Download Artifacts
-        working-directory: arrow
         run: |
-          if [ -z $JOBID ]; then
-            JOBID=nightly-packaging-$(date +%Y-%m-%d)-0
+          if [ -z $PREFIX ]; then
+            PREFIX=nightly-packaging-$(date +%Y-%m-%d)-0
           fi
 
-          archery crossbow download-artifacts -f r-nightly-packages -t ../binaries --skip-pattern-validation $JOBID
+          archery crossbow download-artifacts -f r-nightly-packages -t binaries --skip-pattern-validation $PREFIX
       - name: Build Repository
         shell: Rscript {0}
         run: |
@@ -108,7 +111,7 @@ jobs:
               file <- paste0(art_path, "/r-libarrow-", match[[1]])
               file.copy(file, paste0(path,"//", match[[3]]))
           }
-      - run: ls -R repo
+
       # - name: Upload Files
       #   uses: burnett01/rsync-deployments@5.2
       #   with:
