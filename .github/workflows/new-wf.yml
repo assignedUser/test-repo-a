@@ -18,6 +18,7 @@
 name: Upload R Nightly builds
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       prefix:
@@ -64,7 +65,7 @@ jobs:
             PREFIX=nightly-packaging-$(date +%Y-%m-%d)-0
           fi
           echo $PREFIX
-          
+
           archery crossbow download-artifacts -f r-nightly-packages -t binaries --skip-pattern-validation $PREFIX
       - name: Build Repository
         shell: Rscript {0}
