@@ -59,18 +59,24 @@ jobs:
         working-directory: arrow
         run: |
           if [ -z $JOBID ]; then
-            JOBID=nightly-packaging-$(date +%Y-%m-%d)-0-github-r-nightly-packages
+            JOBID=nightly-packaging-$(date +%Y-%m-%d)-0
           fi
 
-          archery crossbow download-artifacts -t ../binaries $JOBID
+          archery crossbow download-artifacts -f r-nightly-packages -t ../binaries $JOBID
       - name: Build Repository
         shell: Rscript {0}
         run: |
-          pkgs <- list.files("binaries", pattern = "r-pkg_*")
+          art_path <- list.files("binaries", 
+            recursive = TRUE,
+            include.dirs = TRUE,
+            pattern = "r-nightly-packages$",
+            full.names = T)
+
+          pkgs <- list.files(art_path, pattern = "r-pkg_*")
           src_i <- grep("r-pkg_src", pkgs)
           src_pkg <- pkgs[src_i]
           pkgs <- pkgs[-src_i]
-          libs <- list.files("binaries", pattern = "r-libarrow*")
+          libs <- list.files(art_path, pattern = "r-libarrow*")
 
           new_names <- sub("r-pkg_", "", pkgs, fixed = T)
           matches <- regmatches(new_names, regexec("(([a-z]+)-[\\.a-zA-Z0-9]+)_(\\d\\.\\d)-(arrow.+)$", new_names))
@@ -101,7 +107,7 @@ jobs:
               file <- paste0("binaries/r-libarrow-", match[[1]])
               file.copy(file, paste0(path,"//", match[[3]]))
           }
-
+      - run: ls -R repo
       # - name: Upload Files
       #   uses: burnett01/rsync-deployments@5.2
       #   with:
