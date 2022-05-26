@@ -39,6 +39,13 @@ jobs:
           repository: apache/arrow
           ref: master
           submodules: recursive
+      - name: Checkout Crossbow
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: crossbow
+          repository: ursacomputing/crossbow
+          ref: master        
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
