@@ -4,7 +4,7 @@
 # github comment reports!
 name: Crossbow
 on:
-  push:
+  #push:
   workflow_dispatch:
 
 
@@ -487,38 +487,38 @@ jobs:
     name: Update PACKAGES
     runs-on: ubuntu-latest
     steps:
-    - name: Download Artifacts 
-      uses: actions/download-artifact@v3
-      with: 
-        path: artifacts
-    - name: Install R
-      uses: r-lib/actions/setup-r@v2
-      with:
-        install-r: false
-    - name: Rename artifacts
-      shell: Rscript {0}
-      run: |
-        file_paths <- list.files("artifacts", include.dirs = FALSE, recursive = TRUE)
-        new_names <- paste0("binaries/", sub("/","-",file_paths))
-        dir.create("binaries", showWarnings = FALSE)
-        file.copy(paste0("artifacts/", file_paths), new_names)
+      - name: Download Artifacts 
+        uses: actions/download-artifact@v3
+        with: 
+          path: artifacts
+      - name: Install R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          install-r: false
+      - name: Rename artifacts
+        shell: Rscript {0}
+        run: |
+          file_paths <- list.files("artifacts", include.dirs = FALSE, recursive = TRUE)
+          new_names <- paste0("binaries/", sub("/","-",file_paths))
+          dir.create("binaries", showWarnings = FALSE)
+          file.copy(paste0("artifacts/", file_paths), new_names)
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Setup Crossbow
-      shell: bash
-      run: pip install -e arrow/dev/archery[crossbow-upload]
-    - name: Upload artifacts
-      shell: bash
-      run: |
-        archery crossbow \
-        --queue-path $(pwd) \
-        --queue-remote https://github.com/assignUser/crossbow \
-        upload-artifacts \
-        --sha None \
-        --tag None \
-        "binaries/r-*"
-      env:
-        CROSSBOW_GITHUB_TOKEN: ${{ secrets.CROSSBOW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Setup Crossbow
+        shell: bash
+        run: pip install -e arrow/dev/archery[crossbow-upload]
+      - name: Upload artifacts
+        shell: bash
+        run: |
+          archery crossbow \
+          --queue-path $(pwd) \
+          --queue-remote https://github.com/assignUser/crossbow \
+          upload-artifacts \
+          --sha None \
+          --tag None \
+          "binaries/r-*"
+        env:
+          CROSSBOW_GITHUB_TOKEN: ${{ secrets.CROSSBOW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
