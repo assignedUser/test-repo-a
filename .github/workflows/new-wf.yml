@@ -73,7 +73,7 @@ jobs:
             echo "GOT_FILES=false" >> $GITHUB_ENV
           fi
       - name: Build Repository
-        if: env.GOT_FILES
+        if: env.GOT_FILES == 'true'
         shell: Rscript {0}
         run: |
           art_path <- list.files("binaries",
