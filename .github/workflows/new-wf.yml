@@ -67,9 +67,12 @@ jobs:
           echo $PREFIX
 
           archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
+          ls -A binaries
           if [ -n "$(ls -A binaries)" ]; then
+            echo "found files"
             echo "GOT_FILES=true" >> $GITHUB_ENV
           else
+            echo "no files found"
             echo "GOT_FILES=false" >> $GITHUB_ENV
           fi
       - name: Build Repository
