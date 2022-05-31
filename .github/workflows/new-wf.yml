@@ -68,7 +68,7 @@ jobs:
 
           archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
           ls -A binaries
-          if [ -n "$(ls -A binaries)" ]; then
+          if [ -n "$(ls -A binaries/*/*/)" ]; then
             echo "found files"
             echo "GOT_FILES=true" >> $GITHUB_ENV
           else
