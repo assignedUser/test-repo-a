@@ -69,6 +69,9 @@ jobs:
           archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
           if [ -n "$(ls -A binaries)" ]; then
             echo "GOT_FILES=true" >> $GITHUB_ENV
+          else
+            echo "GOT_FILES=false" >> $GITHUB_ENV
+          fi
       - name: Build Repository
         if: env.GOT_FILES
         shell: Rscript {0}
