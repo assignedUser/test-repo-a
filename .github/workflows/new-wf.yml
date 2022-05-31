@@ -67,7 +67,10 @@ jobs:
           echo $PREFIX
 
           archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
+          if [ -n "$(ls -A binaries)" ]; then
+            echo "GOT_FILES=true" >> $GITHUB_ENV
       - name: Build Repository
+        if: env.GOT_FILES
         shell: Rscript {0}
         run: |
           art_path <- list.files("binaries",
@@ -108,4 +111,4 @@ jobs:
               dir.create(path, recursive = TRUE, showWarnings = FALSE)
               file.copy(file, file.path(path, match[[3]]))
           }
-      - run: ls -R repo
+#       - run: ls -R repo
