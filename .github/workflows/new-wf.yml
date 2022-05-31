@@ -25,9 +25,9 @@ on:
         description: Job prefix to use.
         required: false
         default: ''
-  schedule:
-    #Crossbow packagin runs at 0 8 * * *
-    - cron: '0 14 * * *'
+#   schedule:
+#     #Crossbow packagin runs at 0 8 * * *
+#     - cron: '0 14 * * *'
 
 jobs:
   upload:
@@ -40,8 +40,8 @@ jobs:
         with:
           fetch-depth: 1
           path: arrow
-          repository: apache/arrow
-          ref: master
+          repository: assignUser/arrow
+          ref: r-nightly-2
           submodules: recursive
       - name: Checkout Crossbow
         uses: actions/checkout@v3
@@ -60,14 +60,13 @@ jobs:
         run: pip install -e arrow/dev/archery[all]
       - run: mkdir -p binaries
       - name: Download Artifacts
-        working-directory: arrow
         run: |
           if [ -z $PREFIX ]; then
             PREFIX=nightly-packaging-$(date +%Y-%m-%d)-0
           fi
           echo $PREFIX
 
-          archery crossbow download-artifacts -f r-nightly-packages -t ../binaries --skip-pattern-validation $PREFIX
+          archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
       - name: Build Repository
         shell: Rscript {0}
         run: |
@@ -78,49 +77,35 @@ jobs:
               full.names = TRUE
           )
 
-          pkgs <- list.files(art_path, pattern = "r-pkg_*")
-          src_i <- grep("r-pkg_src", pkgs)
+          pkgs <- list.files(art_path, pattern = "r-pkg-*")
+          src_i <- grep("r-pkg-src", pkgs)
           src_pkg <- pkgs[src_i]
           pkgs <- pkgs[-src_i]
           libs <- list.files(art_path, pattern = "r-libarrow*")
 
-          new_names <- sub("r-pkg_", "", pkgs, fixed = T)
-          matches <- regmatches(new_names, regexec("(([a-z]+)-[\\.a-zA-Z0-9]+)_(\\d\\.\\d)-(arrow.+)$", new_names))
+          matches <- regmatches(pkgs, regexec("r-pkg-(([a-z]+)-[\\.a-zA-Z0-9]+)-(\\d\\.\\d)-(arrow.+)$", pkgs))
+
 
           dir.create("repo/src/contrib", recursive = TRUE)
-          file.copy(paste0(art_path, "/", src_pkg), paste0("repo/src/contrib/", sub("r-pkg_src-", "", src_pkg)))
+          file.copy(file.path(art_path, src_pkg), file.path("repo/src/contrib", sub("r-pkg-src-", "", src_pkg)))
           tools::write_PACKAGES("repo/src/contrib", type = "source", verbose = TRUE)
 
           for (match in matches) {
-              path <- paste0("repo/bin/", match[[3]], "/contrib/", match[[4]])
+              path <- file.path("repo/bin", match[[3]], "contrib", match[[4]])
               path <- sub("macos", "macosx", path)
               dir.create(path, recursive = TRUE)
-              file <- list.files(art_path, pattern = paste0(match[[1]], "*"), full.names = TRUE)
+              file <- file.path(art_path, match[[1]])
 
-              file.copy(file, paste0(path, "/", match[[5]]))
+              file.copy(file, file.path(path, match[[5]]))
               tools::write_PACKAGES(path, type = paste0(substring(match[[3]], 1, 3), ".binary"), verbose = TRUE)
           }
 
-          lib_names <- sub("r-libarrow-", "", libs)
-          lib_match <- regmatches(lib_names, regexec("([[:alpha:]]+)-(.+)", lib_names))
-
-          dir.create("repo/libarrow/bin/windows", recursive = TRUE)
-          dir.create("repo/libarrow/bin/centos-7", recursive = TRUE)
-          dir.create("repo/libarrow/bin/ubuntu-18.04", recursive = TRUE)
+          lib_match <- regmatches(libs, regexec("r-libarrow-(windows|[[:alpha:]]+-\\d.*)-(arrow-.+)", libs))
 
           for (match in lib_match) {
-              path <- list.files("repo//libarrow//bin", pattern = match[[2]], full.names = TRUE)
-              file <- paste0(art_path, "/r-libarrow-", match[[1]])
-              file.copy(file, paste0(path, "//", match[[3]]))
+              path <- file.path("repo/libarrow/bin", match[[2]])
+              file <- file.path(art_path, match[[1]])
+              dir.create(path, recursive = TRUE, showWarnings = FALSE)
+              file.copy(file, file.path(path, match[[3]]))
           }
       - run: ls -R repo
-      # - name: Upload Files
-      #   uses: burnett01/rsync-deployments@5.2
-      #   with:
-      #     switches: -avzr
-      #     path: repo/*
-      #     remote_path: ${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r
-      #     remote_host: ${{ secrets.NIGHTLIES_RSYNC_HOST }}
-      #     remote_port: ${{ secrets.NIGHTLIES_RSYNC_PORT }}
-      #     remote_user: ${{ secrets.NIGHTLIES_RSYNC_USER }}
-      #     remote_key: ${{ secrets.NIGHTLIES_RSYNC_KEY }}
