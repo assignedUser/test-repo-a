@@ -41,5 +41,5 @@ jobs:
           # Add R-devel to PATH
           echo "/opt/R-devel/bin" >> $GITHUB_PATH
           # Explicitly install Python as not all container might have it  
-      - run: python3 -m http.server &
-      - run: echo aha
+      - run: python3 -m http.server 8080 --bind localhost &
+      - run: curl localhost:8080
