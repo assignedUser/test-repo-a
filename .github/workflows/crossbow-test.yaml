@@ -28,14 +28,14 @@ jobs:
         shell: bash
         run: |
           if [ "`which dnf`" ]; then
-            dnf install -y libcurl-devel openssl-devel python3
+            dnf install -y libcurl-devel openssl-devel python3 curl
           elif [ "`which yum`" ]; then
-            yum install -y libcurl-devel openssl-devel python3
+            yum install -y libcurl-devel openssl-devel python3 curl
           elif [ "`which zypper`" ]; then
-            zypper install -y libcurl-devel libopenssl-devel python3
+            zypper install -y libcurl-devel libopenssl-devel python3 curl
           else
             apt-get update
-            apt-get install -y libcurl4-openssl-dev libssl-dev python3
+            apt-get install -y libcurl4-openssl-dev libssl-dev python3 curl
           fi
 
           # Add R-devel to PATH
