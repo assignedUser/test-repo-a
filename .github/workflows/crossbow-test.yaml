@@ -9,6 +9,7 @@ on:
 
 jobs:
   bash:
+    if: false
     name: bash
     runs-on: windows-latest
     steps:
@@ -42,11 +43,18 @@ jobs:
           - { rtools: 40, r: "4.1" }
 
     steps:
+      - name: Save PATH
+        id: path 
+        shell: bash
+        run: |
+          echo "::set-output name=path::$(which bash)" 
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r_version.r }}
           rtools-version: ${{ matrix.r_version.rtools }}
           Ncpus: 2
+      - shell: bash
+        run: echo "${{ steps.path.outputs.path }}" >> $GITHUB_PATH
       - name: Setup local repo
         shell: bash
         run: |
@@ -66,9 +74,9 @@ jobs:
           # getwd() is necessary as this macro is used within jobs using a docker container
           tools::write_PACKAGES(file.path(getwd(), "repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - name: Serve repo via localhost
-        shell: pwsh
+        shell: bash
         run: |
-          Start-Job -ScriptBlock {python3 -m http.server 8282 --directory repo/}
+          python3 -m http.server 8282 --directory repo/ &
       - name: Show repo 
         # tree not available in git-bash on windows
         run: |
