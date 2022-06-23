@@ -47,21 +47,21 @@ jobs:
         shell: bash
         run: |
 
-          python3 -m http.server 8080 --directory repo/ &
+          python3 -m http.server 8282 --directory repo/ &
           sleep 5
       - name: Show repo 
         shell: bash 
         # tree not available in git-bash on windows
         run: |
           ls -R repo
-          curl localhost:8080 || echo "Curl Error"
+          curl localhost:8282 || echo "Curl Error"
           
       - name: Add dev repo to .Rprofile
         shell: bash
         run: |
           # It is important to use pwd here as this happens inside a container (during test-linux-binary)
           # so the normal github.workspace path is wrong.
-          echo "options(arrow.dev_repo = 'http://localhost:8080')" >> ~/Documents/.Rprofile
+          echo "options(arrow.dev_repo = 'localhost:8282')" >> ~/Documents/.Rprofile
       - name: Build Binary
         id: build
         shell: Rscript {0}
