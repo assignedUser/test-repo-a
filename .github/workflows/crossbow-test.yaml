@@ -2,8 +2,8 @@ name: Crossbow
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "*-github-*"
+    paths:
+      - crossbow-test.yaml
 
 
 
@@ -27,11 +27,13 @@ jobs:
           Ncpus: 2
       - name: Setup local repo
         shell: bash
-        run: mkdir repo 
+        run: |
+          mkdir -p repo/libarrow/bin/windows
+          mkdir -p repo/src/contrib/
       - name: Get windows binary
         shell: bash
         run: |
-          curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/windows/arrow-8.0.0.20220612.zip 
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/windows/arrow-8.0.0.20220612.zip
       - name: Get src pkg
         shell: bash
         run: |
