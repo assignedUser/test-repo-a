@@ -48,12 +48,14 @@ jobs:
         run: |
           cd repo
           python3 -m http.server 8080 --bind localhost &
+          sleep 5
       - name: Show repo 
         shell: bash 
         # tree not available in git-bash on windows
         run: |
           ls -R repo
           curl localhost:8080 || echo "Curl Error"
+          
       - name: Add dev repo to .Rprofile
         shell: bash
         run: |
