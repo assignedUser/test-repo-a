@@ -70,6 +70,7 @@ jobs:
         shell: bash
         run: |
           python3 -m http.server 8282 --directory repo/ &
+          sleep 2
       - name: Show repo 
         shell: bash # tree not available in git-bash on windows
         run: |
