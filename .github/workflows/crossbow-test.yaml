@@ -21,6 +21,7 @@ jobs:
           Ncpus: 2
       - shell: bash
         run: |
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o arrow-8.0.0.20220612.zip
           python3 -m http.server &
           sleep 3 
           curl localhost
