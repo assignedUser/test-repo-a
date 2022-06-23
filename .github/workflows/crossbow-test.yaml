@@ -80,6 +80,7 @@ jobs:
         run: |
           str <- "options(arrow.dev_repo = 'localhost:8282')"
           profile_path <- file.path(path.expand("~"), ".Rprofile")
+          print(profile_path)
           write(str, file = profile_path, append = TRUE)
 
       - uses: r-lib/actions/setup-r@v2
@@ -93,6 +94,7 @@ jobs:
         env:  
           ARROW_R_DEV: TRUE
         run: |
+          print(file.path(path.expand("~"), ".Rprofile"))
           on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
           # Install dependencies by installing (yesterday's) binary, then removing it
           install.packages(c("arrow", "cpp11"),
