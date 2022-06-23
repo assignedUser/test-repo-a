@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           cd repo
-          python3 -m http.server 8080 --bind localhost &
+          python3 -m http.server 8080 &
           sleep 5
       - name: Show repo 
         shell: bash 
@@ -63,6 +63,7 @@ jobs:
           # so the normal github.workspace path is wrong.
           echo "options(arrow.dev_repo = 'http://localhost:8080')" >> ~/Documents/.Rprofile
       - name: Build Binary
+        if: false
         id: build
         shell: Rscript {0}
         env:  
