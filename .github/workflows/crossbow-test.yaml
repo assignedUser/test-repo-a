@@ -8,49 +8,96 @@ on:
 
 
 jobs:
-  windows:
-    runs-on: windows-latest
-    steps:
-      - name: Serve 
-        shell: bash
-        run: |
-          python3 -m http.server 8080 --bind localhost &
-          
-      - shell: bash
-        run: curl localhost:8080
-  test-linux-binary:
-    name: Test binary ${{ matrix.image }}
-    runs-on: ubuntu-latest
-    container: ${{ matrix.image }}
+  r-packages:
+    name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
+    runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
       matrix:
-        image:
-          - "rhub/ubuntu-gcc-release" # ubuntu-20.04 (focal)
-          - "rstudio/r-base:4.1-bionic"
-          - "rstudio/r-base:4.2-centos7"
-          - "rocker/r-ver:3.6.3" # for debian:buster (10)
-          - "rocker/r-ver" # ubuntu-20.04
-          - "rhub/fedora-clang-devel" # tests distro-map.csv, mapped to ubuntu-18.04
-          - "rocker/r-ubuntu:22.04" # tests openssl3 compatibility
+        platform:
+          - windows-latest
+        r_version:
+          - { rtools: 40, r: "4.1" }
+
     steps:
-      - name: Install system requirements
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r_version.r }}
+          rtools-version: ${{ matrix.r_version.rtools }}
+          Ncpus: 2
+      - name: Setup local repo
+        shell: bash
+        run: mkdir repo 
+      - name: Get windows binary
         shell: bash
         run: |
-          if [ "`which dnf`" ]; then
-            dnf install -y libcurl-devel openssl-devel python3 curl
-          elif [ "`which yum`" ]; then
-            yum install -y libcurl-devel openssl-devel python3 curl
-          elif [ "`which zypper`" ]; then
-            zypper install -y libcurl-devel libopenssl-devel python3 curl
-          else
-            apt-get update
-            apt-get install -y libcurl4-openssl-dev libssl-dev python3 curl
-          fi
-
-          # Add R-devel to PATH
-          echo "/opt/R-devel/bin" >> $GITHUB_PATH
-          # Explicitly install Python as not all container might have it  
-      - run: |
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/windows/arrow-8.0.0.20220612.zip 
+      - name: Get src pkg
+        shell: bash
+        run: |
+          curl https://nightlies.apache.org/arrow/r/src/contrib/arrow_8.0.0.20220612.tar.gz -o repo/src/contrib/arrow_8.0.0.20220612.tar.gz
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          # getwd() is necessary as this macro is used within jobs using a docker container
+          tools::write_PACKAGES(file.path(getwd(), "repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
+      - name: Serve repo via localhost
+        shell: bash
+        run: |
+          cd repo
           python3 -m http.server 8080 --bind localhost &
-      - run: curl localhost:8080
+      - name: Show repo 
+        shell: bash 
+        # tree not available in git-bash on windows
+        run: |
+          ls -R repo
+          curl localhost:8080 || echo "Curl Error"
+      - name: Add dev repo to .Rprofile
+        shell: bash
+        run: |
+          # It is important to use pwd here as this happens inside a container (during test-linux-binary)
+          # so the normal github.workspace path is wrong.
+          echo "options(arrow.dev_repo = 'http://localhost:8080')" >> ~/.Rprofile
+      - name: Build Binary
+        id: build
+        shell: Rscript {0}
+        env:  
+          ARROW_R_DEV: TRUE
+        run: |
+          on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
+          # Install dependencies by installing (yesterday's) binary, then removing it
+          install.packages(c("arrow", "cpp11"),
+            type = "binary",
+            repos = c("https://nightlies.apache.org/arrow/r", "https://cloud.r-project.org")
+          )
+          cat("Remove old arrow version.\n")
+          remove.packages("arrow")
+          
+          # Build
+          Sys.setenv(MAKEFLAGS = paste0("-j", parallel::detectCores()))
+          INSTALL_opts <- "--build"
+          if (!on_windows) {
+            # Windows doesn't support the --strip arg
+            INSTALL_opts <- c(INSTALL_opts, "--strip")
+          }
+          print( getOption("arrow.dev_repo"))
+          cat("Install arrow from dev repo.\n")
+          install.packages(
+            "arrow",
+            type = "source",
+            repos = getOption("arrow.dev_repo"),
+            INSTALL_opts = INSTALL_opts
+          )
+          # Test
+          library(arrow)
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          # encode contrib.url for artifact name
+          cmd <- paste0(
+            "::set-output name=path::", 
+            gsub(
+              "/", "__",
+              contrib.url("", type = "binary")
+            ),
+            "\n"
+          )
+          cat(cmd)
