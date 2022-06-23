@@ -52,7 +52,7 @@ jobs:
           print(str)
           #profile_path <- c(".Rprofile", file.path(path.expand("~"), ".Rprofile"))
           #print(profile_path)
-          write(str, file = "${{ github.workspace }}/.Rprofile", append = TRUE)
+          write(str, file = "D:/a/test-repo-a/test-repo-a/.Rprofile", append = TRUE)
           #write(str, file = profile_path[[2]], append = TRUE)
      # - shell: bash
       #  run: echo "options(arrow.dev_repo = \"file//:$(pwd)/repo\")" >> ~/.Rprofile
@@ -66,7 +66,7 @@ jobs:
         shell: Rscript {0}
         env:  
           ARROW_R_DEV: TRUE
-          R_PROFILE_USER: "${{ github.workspace }}/.Rprofile"
+          R_PROFILE_USER: "D:/a/test-repo-a/test-repo-a/.Rprofile"
         run: |
           print(file.path(path.expand("~"), ".Rprofile"))
           on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
