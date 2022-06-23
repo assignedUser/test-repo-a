@@ -52,8 +52,8 @@ jobs:
           print(str)
           profile_path <- c(".Rprofile", file.path(path.expand("~"), ".Rprofile"))
           print(profile_path)
-          write(str, file = profile_pat[[1]], append = TRUE)
-          write(str, file = profile_pat[[2]], append = TRUE)
+          write(str, file = profile_path[[1]], append = TRUE)
+          write(str, file = profile_path[[2]], append = TRUE)
       - shell: bash
         run: echo "options(arrow.dev_repo = \"file://$(pwd)/repo\")" >> ~/.Rprofile
       - uses: r-lib/actions/setup-r@v2
