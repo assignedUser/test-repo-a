@@ -79,7 +79,7 @@ jobs:
         shell: Rscript {0}
         run: |
           str <- "options(arrow.dev_repo = 'localhost:8282')"
-          profile_path <- "~/.Rprofile"
+          profile_path <- fiel.path(path.expand("~"), ".Rprofile")
           write(str, file = profile_path, append = TRUE)
 
       - uses: r-lib/actions/setup-r@v2
