@@ -14,18 +14,19 @@ jobs:
     steps:
       - shell: bash
         run: echo $PATH
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          windows-path-include-mingw: false
-          r-version: 4.1
-          rtools-version: 40
-          Ncpus: 2
       - shell: bash
         run: |
           curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o arrow-8.0.0.20220612.zip
           python3 -m http.server &
           sleep 3 
           curl localhost:8000
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          windows-path-include-mingw: false
+          r-version: 4.1
+          rtools-version: 40
+          Ncpus: 2
+
       - run: curl localhost:8000
         
   r-packages:
