@@ -15,7 +15,6 @@ jobs:
         shell: bash
         run: |
           python3 -m http.server 8080 --bind localhost &
-          sleep 5
           
       - shell: bash
         run: curl localhost:8080
@@ -54,5 +53,4 @@ jobs:
           # Explicitly install Python as not all container might have it  
       - run: |
           python3 -m http.server 8080 --bind localhost &
-          sleep 5
       - run: curl localhost:8080
