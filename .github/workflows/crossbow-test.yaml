@@ -20,7 +20,12 @@ jobs:
           rtools-version: 40
           Ncpus: 2
       - shell: bash
-        run: echo $PATH
+        run: |
+          python3 -m http.server &
+          sleep 3 
+          curl localhost
+      - run: curl localhost
+        
   r-packages:
     if: false
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
