@@ -71,7 +71,7 @@ jobs:
           # getwd() is necessary as this macro is used within jobs using a docker container
           tools::write_PACKAGES(file.path(getwd(), "repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - name: Serve repo via localhost
-        shell: /usr/bin/bash {0}
+        shell: C:/Users/runneradmin/bin {0}
         run: |
           python3 -m http.server 8282 --directory repo/ &
           sleep 2
