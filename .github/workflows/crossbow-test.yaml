@@ -50,8 +50,8 @@ jobs:
         run: |
           str <- paste0("options(arrow.dev_repo ='file://", getwd(), "/repo' )")
           profile_path <- c(".Rprofile", file.path(path.expand("~"), ".Rprofile"))
-          write(str, file = profile_path[[1]], append = TRUE)
-          write(str, file = profile_path[[2]], append = TRUE)
+          write(str, file =".Rprofile", append = TRUE)
+          write(str, file ="C:\\Users\\runneradmin\\Documents\\.Rprofile", append = TRUE)
       - shell: bash
         run: echo "options(arrow.dev_repo = \"file://$(pwd)/repo\")" >> ~/.Rprofile
       - uses: r-lib/actions/setup-r@v2
@@ -63,7 +63,7 @@ jobs:
         id: build
         shell: Rscript {0}
         env:  
-          R_PROFILE_USER: ~/.Rprofile
+          R_PROFILE_USER: "C:\\Users\\runneradmin\\Documents\\.Rprofile"
           ARROW_R_DEV: TRUE
         run: |
           print(file.path(path.expand("~"), ".Rprofile"))
