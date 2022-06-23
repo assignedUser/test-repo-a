@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
 
-          python3 -m http.server 8080 --bind localhost --directory repo/ &
+          python3 -m http.server 8080 --directory repo/ &
           sleep 5
       - name: Show repo 
         shell: bash 
