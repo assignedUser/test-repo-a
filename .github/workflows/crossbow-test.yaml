@@ -31,7 +31,6 @@ jobs:
       - run: curl localhost:8000
         
   r-packages:
-    if: false
     name: ${{ matrix.platform }} ${{ matrix.r_version.r }}
     runs-on: ${{ matrix.platform }}
     strategy:
