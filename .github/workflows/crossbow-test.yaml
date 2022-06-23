@@ -63,6 +63,7 @@ jobs:
         id: build
         shell: Rscript {0}
         env:  
+          R_PROFILE_USER: ~/.Rprofile
           ARROW_R_DEV: TRUE
         run: |
           print(file.path(path.expand("~"), ".Rprofile"))
