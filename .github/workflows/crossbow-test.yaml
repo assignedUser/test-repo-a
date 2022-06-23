@@ -78,7 +78,7 @@ jobs:
       - name: Add dev repo to .Rprofile
         shell: Rscript {0}
         run: |
-          str <- paste0('options(arrow.dev_repo = 'localhost:8282')')
+          str <- "options(arrow.dev_repo = 'localhost:8282')"
           profile_path <- "~/.Rprofile"
           write(str, file = profile_path, append = TRUE)
 
