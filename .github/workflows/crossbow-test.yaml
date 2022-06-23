@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - crossbow-test.yaml
+      - .github/workflows/crossbow-test.yaml
 
 
 
@@ -24,8 +24,8 @@ jobs:
           curl https://nightlies.apache.org/arrow/r/libarrow/bin/windows/arrow-8.0.0.20220612.zip -o arrow-8.0.0.20220612.zip
           python3 -m http.server &
           sleep 3 
-          curl localhost
-      - run: curl localhost
+          curl localhost:8000
+      - run: curl localhost:8000
         
   r-packages:
     if: false
