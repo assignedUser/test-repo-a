@@ -48,11 +48,9 @@ jobs:
         run: |
           Start-Job -ScriptBlock {python3 -m http.server 8282 --directory repo/}
       - name: Show repo 
-        shell: bash 
         # tree not available in git-bash on windows
         run: |
-          ls -R repo
-          curl localhost:8282 || echo "Curl Error"
+          curl localhost:8282 
           
       - name: Add dev repo to .Rprofile
         shell: bash
