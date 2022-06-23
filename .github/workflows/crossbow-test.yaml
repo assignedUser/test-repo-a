@@ -52,8 +52,6 @@ jobs:
           r-version: ${{ matrix.r_version.r }}
           rtools-version: ${{ matrix.r_version.rtools }}
           Ncpus: 2
-      - shell: bash
-        run: echo "/usr/bin" >> $GITHUB_PATH
       - name: Setup local repo
         shell: bash
         run: |
@@ -73,11 +71,12 @@ jobs:
           # getwd() is necessary as this macro is used within jobs using a docker container
           tools::write_PACKAGES(file.path(getwd(), "repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
       - name: Serve repo via localhost
-        shell: bash
+        shell: /usr/bin/bash {0}
         run: |
           python3 -m http.server 8282 --directory repo/ &
+          sleep 2
       - name: Show repo 
-        # tree not available in git-bash on windows
+        shell: bash # tree not available in git-bash on windows
         run: |
           curl localhost:8282 
           
