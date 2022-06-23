@@ -53,7 +53,7 @@ jobs:
           rtools-version: ${{ matrix.r_version.rtools }}
           Ncpus: 2
       - shell: bash
-        run: echo "${{ steps.path.outputs.path }}" >> $GITHUB_PATH
+        run: echo "/usr/bin" >> $GITHUB_PATH
       - name: Setup local repo
         shell: bash
         run: |
