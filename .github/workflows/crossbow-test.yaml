@@ -142,21 +142,21 @@ jobs:
           mkdir -p repo/libarrow/bin/centos-7
           mkdir -p repo/src/contrib/
       - name: Get Ubuntu binary
-        shell: bash
+        shell: Rscript {0}
         run: |
-          curl https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip
+          download.file("https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip", "repo/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip")
       - name: Get Ubuntu binary
-        shell: bash
+        shell: Rscript {0}
         run: |
-          curl https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip
+          download.file("https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip", "repo/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip")
       - name: Get windows binary
-        shell: bash
+        shell: Rscript {0}
         run: |
-          curl https://nightlies.apache.org/arrow/r/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip
+          download.file("https://nightlies.apache.org/arrow/r/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip", "repo/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip")
       - name: Get src pkg
-        shell: bash
+        shell: Rscript {0}
         run: |
-          curl https://nightlies.apache.org/arrow/r/src/contrib/arrow_8.0.0.20220612.tar.gz -o repo/src/contrib/arrow_8.0.0.20220612.tar.gz
+          download.file("https://nightlies.apache.org/arrow/r/src/contrib/arrow_8.0.0.20220612.tar.gz", "repo/src/contrib/arrow_8.0.0.20220612.tar.gz")
       - name: Update repo index
         shell: Rscript {0}
         run: |
