@@ -104,7 +104,6 @@ jobs:
           )
           cat(cmd)
   test-linux-binary:
-    needs: [source, linux-cpp]
     name: Test binary ${{ matrix.image }}
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
