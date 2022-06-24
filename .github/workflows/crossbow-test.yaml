@@ -50,12 +50,10 @@ jobs:
         run: |
           str <- paste0("options(arrow.dev_repo ='file://", getwd(), "/repo' )")
           print(str)
-          #profile_path <- c(".Rprofile", file.path(path.expand("~"), ".Rprofile"))
-          #print(profile_path)
-          write(str, file = "D:/a/test-repo-a/test-repo-a/.Rprofile", append = TRUE)
-          #write(str, file = profile_path[[2]], append = TRUE)
-     # - shell: bash
-      #  run: echo "options(arrow.dev_repo = \"file//:$(pwd)/repo\")" >> ~/.Rprofile
+          profile_path <- file.path(getwd(), ".Rprofile")
+          write(str, file = profile_path, append = TRUE)
+          # Set envvar for later steps by appending to $GITHUB_ENV 
+          write(paste0("R_PROFILE_USER=", profile_path), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r_version.r }}
@@ -66,7 +64,6 @@ jobs:
         shell: Rscript {0}
         env:  
           ARROW_R_DEV: TRUE
-          R_PROFILE_USER: "D:/a/test-repo-a/test-repo-a/.Rprofile"
         run: |
           print(file.path(path.expand("~"), ".Rprofile"))
           on_windows <- tolower(Sys.info()[["sysname"]]) == "windows"
@@ -106,3 +103,96 @@ jobs:
             "\n"
           )
           cat(cmd)
+ test-linux-binary:
+    needs: [source, linux-cpp]
+    name: Test binary ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - "rhub/ubuntu-gcc-release" # ubuntu-20.04 (focal)
+          - "rstudio/r-base:4.1-bionic"
+          - "rstudio/r-base:4.2-centos7"
+          - "rocker/r-ver:3.6.3" # for debian:buster (10)
+          - "rocker/r-ver" # ubuntu-20.04
+          - "rhub/fedora-clang-devel" # tests distro-map.csv, mapped to ubuntu-18.04
+          - "rocker/r-ubuntu:22.04" # tests openssl3 compatibility
+    steps:
+      - name: Install system requirements
+        shell: bash
+        run: |
+          if [ "`which dnf`" ]; then
+            dnf install -y libcurl-devel openssl-devel python3
+          elif [ "`which yum`" ]; then
+            yum install -y libcurl-devel openssl-devel python3
+          elif [ "`which zypper`" ]; then
+            zypper install -y libcurl-devel libopenssl-devel python3
+          else
+            apt-get update
+            apt-get install -y libcurl4-openssl-dev libssl-dev python3
+          fi
+          # Add R-devel to PATH
+          echo "/opt/R-devel/bin" >> $GITHUB_PATH
+      - name: Setup local repo
+        shell: bash
+        run: |
+          mkdir -p repo/libarrow/bin/ubuntu-18.04
+          mkdir -p repo/libarrow/bin/ubuntu-22.04
+          mkdir -p repo/libarrow/bin/centos-7
+          mkdir -p repo/src/contrib/
+      - name: Get Ubuntu binary
+        shell: bash
+        run: |
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/ubuntu-18.04/arrow-8.0.0.20220612.zip
+      - name: Get Ubuntu binary
+        shell: bash
+        run: |
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/ubuntu-22.04/arrow-8.0.0.20220612.zip
+      - name: Get windows binary
+        shell: bash
+        run: |
+          curl https://nightlies.apache.org/arrow/r/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip -o repo/libarrow/bin/centos-7/arrow-8.0.0.20220612.zip
+      - name: Get src pkg
+        shell: bash
+        run: |
+          curl https://nightlies.apache.org/arrow/r/src/contrib/arrow_8.0.0.20220612.tar.gz -o repo/src/contrib/arrow_8.0.0.20220612.tar.gz
+      - name: Update repo index
+        shell: Rscript {0}
+        run: |
+          # getwd() is necessary as this macro is used within jobs using a docker container
+          tools::write_PACKAGES(file.path(getwd(), "repo/src/contrib", fsep = "/"), type = "source", verbose = TRUE)
+      - name: Show repo 
+        shell: bash 
+        # tree not available in git-bash on windows
+        run: |
+          ls -R repo
+      - name: Add dev repo to .Rprofile
+        shell: Rscript {0}
+        run: |
+          str <- paste0("options(arrow.dev_repo ='file://", getwd(), "/repo' )")
+          print(str)
+          profile_path <- file.path(getwd(), ".Rprofile")
+          write(str, file = profile_path, append = TRUE)
+          # Set envvar for later steps by appending to $GITHUB_ENV 
+          write(paste0("R_PROFILE_USER=", profile_path), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+      - name: Install arrow from our repo
+        env:
+          ARROW_R_DEV: TRUE
+          LIBARROW_BUILD: "FALSE"
+          LIBARROW_BINARY: "TRUE"
+        shell: Rscript {0}
+        run: |
+          source("https://raw.githubusercontent.com/apache/arrow/master/ci/etc/rprofile")
+          
+          install.packages(
+            "arrow",
+            repos = c(getOption("arrow.dev_repo"), "https://cloud.r-project.org"),
+            verbose = TRUE
+          )
+          
+          library(arrow)
+          read_parquet(system.file("v0.7.1.parquet", package = "arrow"))
+          # Our Version should always be > CRAN so we would detect a CRAN version here.
+          stopifnot(packageVersion("arrow") == "${{needs.source.outputs.pkg_version}}")
