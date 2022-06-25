@@ -4,39 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  # test-linux:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: | 
-  #         sudo apt update && sudo apt install davfs2
-  #         mkdir nightly
-  #         sudo bash -c 'echo "https://nightly.wujciak.de:8080 ${{ secrets.ASF_USER }} ${{ secrets.ASF_KEY }}" >> /etc/davfs2/secrets'
-  #         sudo mount -t davfs https://nightly.wujciak.de:8080 nightly -o rw
-  #         ls -la nightly
-  # test-mac:
-  #   runs-on: macos-latest
-  #   steps:
-  #     - run: mkdir nightly
-  #     - name: Mount repo
-  #       shell: expect {0}
-  #       run: |
-  #         spawn /sbin/mount_webdav -i -s -v nightly https://nightly.wujciak.de:8080/  ${{ github.workspace }}/nightly
-  #         expect "name:" {
-  #         send "${{ secrets.ASF_USER }}\r"
-  #         }
-  #         expect timeout {
-  #         exit
-  #         } "word:" {
-  #         send "${{ secrets.ASF_KEY }}\r"
-  #         exp_continue
-  #         }
   test-windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Mount repo
-        shell: bash
-        env:
-          USER: ${{ secrets.ASF_USER }}
-          PW: ${{ secrets.ASF_KEY }}
-        run: |
-          sudo apt install davfs2
+      - run: |
+          echo "::warning file=test.R :: warning!"
+          cd R
+          echo "::warning file=lint_me.R :: warning!"
+          #echo "::warning file=R/lint_me.R :: warning!"
