@@ -11,5 +11,5 @@ jobs:
       - run: |
           echo "::warning file=test.R :: warning!"
           cd R
-          echo "::warning file=lint_me.R :: warning!"
-          #echo "::warning file=R/lint_me.R :: warning!"
+          #echo "::warning file=lint_me.R :: warning!"
+          echo "::warning file=R/lint_me.R :: warning!"
