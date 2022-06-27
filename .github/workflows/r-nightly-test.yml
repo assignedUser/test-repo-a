@@ -33,18 +33,18 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - runs: |
+      - run: |
             eval "$(ssh-agent)" > /dev/null
             echo "${{ secrets.NIGHTLIES_RSYNC_KEY }}" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             " ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
             set -eu
-  
+
             # Variables.
             RSYNC_SWITCHES="-avzr --update"
             RSH="ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}"
-  
+
             # Deploy.
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r $LOCAL_PATH"
 
