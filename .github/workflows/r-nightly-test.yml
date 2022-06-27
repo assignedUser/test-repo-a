@@ -79,6 +79,7 @@ jobs:
 
             # Deploy.
             sh -c \"rsync $RSYNC_SWITCHES -e '$RSH' $DSN:${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r $LOCAL_PATH\"
+            "
 
       - run: mkdir -p binaries
       - name: Download Artifacts
