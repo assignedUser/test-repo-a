@@ -61,10 +61,9 @@ jobs:
           path: repo
           key: r-nightly-${{ github.run_id }}
           restore-key: r-nightly-
-      - name: Sync nightlies from remote
-        container: 
-          image: drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
-          env:
+      - name: Sync nightlies from remote 
+        uses: drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
+        env:
             RSYNC_SWITCHES: -avzr --update
         run: |
           source agent-autostart "$GITHUB_ACTION"
