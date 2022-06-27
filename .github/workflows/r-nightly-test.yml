@@ -63,8 +63,6 @@ jobs:
           restore-key: r-nightly-
       - name: Sync nightlies from remote 
         uses: docker://drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
-        env:
-            RSYNC_SWITCHES: -avzr --update
         with:
           entrypoint: /bin/bash -c "
             source agent-autostart \"$GITHUB_ACTION\"
@@ -74,6 +72,7 @@ jobs:
             set -eu
 
             # Variables.
+            RSYNC_SWITCHES=\"-avzr --update\"
             RSH=\"ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}\"
             LOCAL_PATH=\"$GITHUB_WORKSPACE/$RSYNC_PATH\"
             DSN=\"${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}\"
