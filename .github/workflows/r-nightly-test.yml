@@ -54,7 +54,7 @@ jobs:
             DSN="$USER@$HOST"
 
             # Deploy.
-            sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/arrow/r $LOCAL_PATH"
+            sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:12000/$REMOTE_PATH/arrow/r $LOCAL_PATH"
 
       # - name: Checkout Arrow
       #   uses: actions/checkout@v3
