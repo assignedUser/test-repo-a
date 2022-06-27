@@ -39,12 +39,12 @@ jobs:
             eval "$(ssh-agent)" > /dev/null
             echo "${{ secrets.NIGHTLIES_RSYNC_KEY }}" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
+            #echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
             set -eu
 
             # Variables.
             RSYNC_SWITCHES="-avzr --update"
-            RSH="ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}"
+            RSH="ssh -o StrictHostKeyChecking=no -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}"
 
