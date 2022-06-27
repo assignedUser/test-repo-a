@@ -62,9 +62,10 @@ jobs:
           key: r-nightly-${{ github.run_id }}
           restore-key: r-nightly-
       - name: Sync nightlies from remote
-        container: drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
-        env:
-          RSYNC_SWITCHES: -avzr --update
+        container: 
+          image: drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
+          env:
+            RSYNC_SWITCHES: -avzr --update
         run: |
           source agent-autostart "$GITHUB_ACTION"
           source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}
