@@ -48,14 +48,30 @@ jobs:
             set -eu
 
             # Variables.
-            RSYNC_SWITCHES="-avzr --update"
+            RSYNC_SWITCHES="-avzrh --update --progress"
             RSH="ssh -o StrictHostKeyChecking=no -p $PORT"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="$USER@$HOST"
 
             # Deploy.
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/arrow/r $LOCAL_PATH"
+      - run: echo Another Step       
+      - env:
+          RSYNC_PATH: repo
+          SSH_KEY: "${{ secrets.NIGHTLIES_RSYNC_KEY }}"
+          PORT: "${{ secrets.NIGHTLIES_RSYNC_PORT }}"
+          USER: "${{ secrets.NIGHTLIES_RSYNC_USER }}"
+          HOST: "${{ secrets.NIGHTLIES_RSYNC_HOST }}"
+          REMOTE_PATH: "${{ secrets.NIGHTLIES_RSYNC_PATH }}"
+        run: |
+            # Variables.
+            RSYNC_SWITCHES="-avzrh --update --progress"
+            RSH="ssh -o StrictHostKeyChecking=no -p $PORT"
+            LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
+            DSN="$USER@$HOST"
 
+            # Deploy.
+            sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $LOCAL_PATH  $DSN:$REMOTE_PATH/arrow/r"
       # - name: Checkout Arrow
       #   uses: actions/checkout@v3
       #   with:
