@@ -60,7 +60,7 @@ jobs:
         with:
           path: repo
           key: r-nightly-${{ github.run_id }}
-          restore-key: r-nightly-
+          restore-keys: r-nightly-
       - name: Sync nightlies from remote 
         uses: docker://drinternet/rsync:v1.4.0
         with:
