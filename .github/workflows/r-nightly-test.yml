@@ -69,15 +69,12 @@ jobs:
                 source agent-autostart \"$GITHUB_ACTION\";
                 source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }};
                 set -eu;
-
                 RSYNC_SWITCHES=\"-avzr --update\";
                 RSH=\"ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}\";
                 LOCAL_PATH=\"$GITHUB_WORKSPACE/$RSYNC_PATH\";
                 DSN=\"${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}\";
-
                 sh -c \"rsync $RSYNC_SWITCHES -e '$RSH' $DSN:${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r $LOCAL_PATH\";
                 "
-
       - run: mkdir -p binaries
       - name: Download Artifacts
         env:
