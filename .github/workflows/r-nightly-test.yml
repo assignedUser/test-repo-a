@@ -66,7 +66,6 @@ jobs:
         env:
             RSYNC_SWITCHES: -avzr --update
         with:
-          comma
           entrypoint: /bin/bash -c "
             source agent-autostart \"$GITHUB_ACTION\"
             source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}
