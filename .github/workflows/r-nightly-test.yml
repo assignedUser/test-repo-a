@@ -54,7 +54,7 @@ jobs:
             DSN="$USER@$HOST"
 
             # Deploy.
-            sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/arrow/r $LOCAL_PATH"
+            sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/arrow/r/src/contrib/* $LOCAL_PATH"
       - run: echo Another Step       
       - env:
           RSYNC_PATH: repo
