@@ -62,23 +62,25 @@ jobs:
           key: r-nightly-${{ github.run_id }}
           restore-key: r-nightly-
       - name: Sync nightlies from remote 
-        uses: drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
+        uses: docker://drinternet/rsync:sha256:dd87661f66afaabf6c6c2fd25df2e617f92fecd4e05e0e3cd70420bb514fbda5
         env:
             RSYNC_SWITCHES: -avzr --update
-        run: |
-          source agent-autostart "$GITHUB_ACTION"
-          source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}
+        with:
+          comma
+          entrypoint: /bin/bash -c "
+            source agent-autostart \"$GITHUB_ACTION\"
+            source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}
 
-          # Add strict errors.
-          set -eu
+            # Add strict errors.
+            set -eu
 
-          # Variables.
-          RSH="ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}"
-          LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
-          DSN="${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}"
+            # Variables.
+            RSH=\"ssh -p ${{ secrets.NIGHTLIES_RSYNC_PORT }}\"
+            LOCAL_PATH=\"$GITHUB_WORKSPACE/$RSYNC_PATH\"
+            DSN=\"${{ secrets.NIGHTLIES_RSYNC_USER }}@${{ secrets.NIGHTLIES_RSYNC_HOST }}\"
 
-          # Deploy.
-          sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r $LOCAL_PATH"
+            # Deploy.
+            sh -c \"rsync $RSYNC_SWITCHES -e '$RSH' $DSN:${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r $LOCAL_PATH\"
 
       - run: mkdir -p binaries
       - name: Download Artifacts
