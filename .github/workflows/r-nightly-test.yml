@@ -64,7 +64,8 @@ jobs:
       - name: Sync nightlies from remote 
         uses: docker://drinternet/rsync:v1.4.0
         with:
-          entrypoint: /bin/bash -c "
+          entrypoint: |
+            /bin/bash -c "
             source agent-autostart \"$GITHUB_ACTION\"
             source host-add ${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}
 
