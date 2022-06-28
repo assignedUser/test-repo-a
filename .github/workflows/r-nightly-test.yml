@@ -94,7 +94,7 @@ jobs:
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            echo $HOST_KEY >> ~/.ssh/known_hosts
+            echo "$HOST_KEY" >> ~/.ssh/known_hosts
 
             # strict errors
             set -eu
@@ -185,7 +185,7 @@ jobs:
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            echo $HOST_KEY >> ~/.ssh/known_hosts
+            echo "$HOST_KEY" >> ~/.ssh/known_hosts
             set -eu
 
             # Variables.
