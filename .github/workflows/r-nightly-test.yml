@@ -28,11 +28,15 @@ on:
         description: Job prefix to use.
         required: false
         default: ''
+      keep:
+        description: Number of versions to keep.
+        required: false
+        default: 14
 
 jobs:
   upload:
     runs-on: ubuntu-latest
-    steps:    
+    steps:
       - name: Checkout Arrow
         uses: actions/checkout@v3
         with:
@@ -56,7 +60,12 @@ jobs:
       - name: Install Archery
         shell: bash
         run: pip install -e arrow/dev/archery[all]
-
+      - uses: actions/cache@v3
+        with:
+          path: repo
+          key: r-nightly-${{ github.run_id }}
+          restore-key: r-nightly-
+      
       - run: mkdir -p binaries
       - name: Download Artifacts
         env:
@@ -91,6 +100,7 @@ jobs:
           HOST_KEY: "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}"
           REMOTE_PATH: "${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r"
         run: |
+            # Make SSH key available and add remote to known hosts
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
@@ -99,19 +109,21 @@ jobs:
             # strict errors
             set -eu
 
-            # Variables.
-            RSYNC_SWITCHES="-avzrh --update --delete --progress "
+            # transfer only new files, delete files not in source, show progress info
+            RSYNC_SWITCHES="-avzrh --update --delete --progress"
+            # We have to use a custom RSH to supply the port
             RSH="ssh -p $PORT"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="$USER@$HOST"
 
-            # Deploy.
+            # Deploy. It is important to append '/*' to the source path otherwise
+            # the entire source dir will be created as a sub dir in the destination
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/* $LOCAL_PATH"
       - run: tree repo
       - name: Build Repository
         shell: Rscript {0}
         run: |
-          # folder that we rsync to nightlies.apache.org
+          # folder that we sync to nightlies.apache.org
           repo_root <- "repo"
           # The binaries are in a nested dir 
           # so we need to find the correct path.
@@ -141,25 +153,26 @@ jobs:
           }
       - name: Prune Repository
         shell: bash
+        env:
+          KEEP: ${{ github.event.inputs.keep || 14 }}
         run: |   
           prune() {
-            local keep=${2:-14}
-            # list files  | retain $keep newest files | delete everything else
-            ls -t $1/arrow* | tail -n +$((keep + 1)) | xargs --no-run-if-empty rm 
+            # list files  | retain $KEEP newest files | delete everything else
+            ls -t $1/arrow* | tail -n +$((KEEP + 1)) | xargs --no-run-if-empty rm 
           }
 
           # find leaf sub dirs
           repo_dirs=$(find repo -type d -links 2)
 
-          # We want to retain $keep versions of each pkg/lib so we call
+          # We want to retain $keep (14) versions of each pkg/lib so we call
           # prune on each leaf dir and not on repo/.
           for dir in ${repo_dirs[@]}; do
-            prune $dir 10
+            prune $dir
           done
       - name: Update Repository Index
         shell: Rscript {0}
         run: |
-          # folder that we rsync to nightlies.apache.org
+          # folder that we sync to nightlies.apache.org
           repo_root <- "repo"
           tools::write_PACKAGES(file.path(repo_root, "src/contrib"), type = "source", verbose = TRUE)
 
@@ -184,18 +197,21 @@ jobs:
           HOST_KEY: "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}"
           REMOTE_PATH: "${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r"
         run: |
+            # Make SSH key available and add remote to known hosts
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
             echo "$HOST_KEY" >> ~/.ssh/known_hosts
             set -eu
 
-            # Variables.
+            # avzrh - archive mode, verbose, with compression, recurse into dirs, human readable numbers
+            # transfer only new files, delete files not in source, show progress info
             RSYNC_SWITCHES="-avzrh --update --delete --progress"
+            # We have to use a custom RSH to supply the port
             RSH="ssh -p $PORT"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="$USER@$HOST"
 
-            # Deploy.
+            # Deploy. It is important to append '/*' to the source path otherwise
+            # the entire source dir will be created as a sub dir in the destination
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $LOCAL_PATH/*  $DSN:$REMOTE_PATH"
-
