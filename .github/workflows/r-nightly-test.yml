@@ -88,12 +88,13 @@ jobs:
           PORT: "${{ secrets.NIGHTLIES_RSYNC_PORT }}"
           USER: "${{ secrets.NIGHTLIES_RSYNC_USER }}"
           HOST: "${{ secrets.NIGHTLIES_RSYNC_HOST }}"
+          HOST_KEY: "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}"
           REMOTE_PATH: "${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r"
         run: |
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
+            echo $HOST_KEY >> ~/.ssh/known_hosts
 
             # strict errors
             set -eu
@@ -132,7 +133,8 @@ jobs:
           dirs <- dirname(new_paths)
           sapply(dirs, dir.create, recursive = TRUE, showWarnings = FALSE)
 
-          copy_result <- file.copy(current_path, new_paths)
+          # overwrite allows us to "force push" a new version with the same name
+          copy_result <- file.copy(current_path, new_paths, overwrite = TRUE)
 
           if (!all(copy_result)) {
             stop("There was an issue while copying the files!")
@@ -177,12 +179,13 @@ jobs:
           PORT: "${{ secrets.NIGHTLIES_RSYNC_PORT }}"
           USER: "${{ secrets.NIGHTLIES_RSYNC_USER }}"
           HOST: "${{ secrets.NIGHTLIES_RSYNC_HOST }}"
+          HOST_KEY: "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}"
           REMOTE_PATH: "${{ secrets.NIGHTLIES_RSYNC_PATH }}/arrow/r"
         run: |
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
+            echo $HOST_KEY >> ~/.ssh/known_hosts
             set -eu
 
             # Variables.
