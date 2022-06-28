@@ -93,14 +93,14 @@ jobs:
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            #echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
+            echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
 
             # strict errors
             set -eu
 
             # Variables.
             RSYNC_SWITCHES="-avzrh --update --delete --progress "
-            RSH="ssh -o StrictHostKeyChecking=no -p $PORT"
+            RSH="ssh -p $PORT"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="$USER@$HOST"
 
