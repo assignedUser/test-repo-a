@@ -33,4 +33,5 @@ jobs:
 
             # Deploy.
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/* $LOCAL_PATH"
+      - run: tree repo
 
