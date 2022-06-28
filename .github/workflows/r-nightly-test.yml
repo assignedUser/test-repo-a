@@ -159,6 +159,8 @@ jobs:
       - name: Update Repository Index
         shell: Rscript {0}
         run: |
+          # folder that we rsync to nightlies.apache.org
+          repo_root <- "repo"
           tools::write_PACKAGES(file.path(repo_root, "src/contrib"), type = "source", verbose = TRUE)
 
           repo_dirs <- list.dirs(repo_root)
