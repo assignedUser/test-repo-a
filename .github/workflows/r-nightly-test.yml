@@ -56,12 +56,33 @@ jobs:
       - name: Install Archery
         shell: bash
         run: pip install -e arrow/dev/archery[all]
-      - uses: actions/cache@v3
+
+      - run: mkdir -p binaries
+      - name: Download Artifacts
+        env:
+          PREFIX: ${{ github.event.inputs.prefix || ''}}
+        run: |
+          if [ -z $PREFIX ]; then
+            PREFIX=nightly-packaging-$(date +%Y-%m-%d)-0
+          fi
+          echo $PREFIX
+
+          archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
+
+          if [ -n "$(ls -A binaries/*/*/)" ]; then
+            echo "Found files!"
+          else
+            echo "No files found. Stopping upload."
+            exit 1
+          fi
+      - name: Cache Repo
+        uses: actions/cache@v3
         with:
           path: repo
           key: r-nightly-${{ github.run_id }}
           restore-keys: r-nightly-
-      - env:
+      - name: Sync from Remote
+        env:
           RSYNC_PATH: repo
           SSH_KEY: "${{ secrets.NIGHTLIES_RSYNC_KEY }}"
           PORT: "${{ secrets.NIGHTLIES_RSYNC_PORT }}"
@@ -86,24 +107,6 @@ jobs:
             # Deploy.
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/* $LOCAL_PATH"
       - run: ls -R repo
-      - run: mkdir -p binaries
-      - name: Download Artifacts
-        env:
-          PREFIX: ${{ github.event.inputs.prefix || ''}}
-        run: |
-          if [ -z $PREFIX ]; then
-            PREFIX=nightly-packaging-$(date +%Y-%m-%d)-0
-          fi
-          echo $PREFIX
-
-          archery crossbow download-artifacts -f r-nightly-packages -t binaries $PREFIX
-
-          if [ -n "$(ls -A binaries/*/*/)" ]; then
-            echo "Found files!"
-          else
-            echo "No files found. Stopping upload."
-            exit 1
-          fi
       - name: Build Repository
         shell: Rscript {0}
         run: |
@@ -152,7 +155,8 @@ jobs:
           }
       - name: Show repo contents
         run: ls -R repo
-      - env:
+      - name: Sync to Remote
+        env:
           RSYNC_PATH: repo
           SSH_KEY: "${{ secrets.NIGHTLIES_RSYNC_KEY }}"
           PORT: "${{ secrets.NIGHTLIES_RSYNC_PORT }}"
