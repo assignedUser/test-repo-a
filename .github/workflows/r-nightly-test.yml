@@ -106,7 +106,7 @@ jobs:
 
             # Deploy.
             sh -c "rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/* $LOCAL_PATH"
-      - run: ls -R repo
+      - run: tree repo
       - name: Build Repository
         shell: Rscript {0}
         run: |
@@ -137,7 +137,26 @@ jobs:
           if (!all(copy_result)) {
             stop("There was an issue while copying the files!")
           }
+      - name: Prune Repository
+        shell: bash
+        run: |   
+          prune() {
+            local keep=${2:-14}
+            # list files  | retain $keep newest files | delete everything else
+            ls -t $1/arrow* | tail -n +$((keep + 1)) | xargs --no-run-if-empty rm 
+          }
 
+          # find leaf sub dirs
+          repo_dirs=$(find repo -type d -links 2)
+
+          # We want to retain $keep versions of each pkg/lib so we call
+          # prune on each leaf dir and not on repo/.
+          for dir in ${repo_dirs[@]}; do
+            prune $dir 10
+          done
+      - name: Update Repository Index
+        shell: Rscript {0}
+        run: |
           tools::write_PACKAGES(file.path(repo_root, "src/contrib"), type = "source", verbose = TRUE)
 
           repo_dirs <- list.dirs(repo_root)
@@ -150,7 +169,7 @@ jobs:
             tools::write_PACKAGES(dir, type = ifelse(on_win, "win.binary", "mac.binary"), verbose = TRUE )
           }
       - name: Show repo contents
-        run: ls -R repo
+        run: tree repo
       - name: Sync to Remote
         env:
           RSYNC_PATH: repo
@@ -163,12 +182,12 @@ jobs:
             eval "$(ssh-agent)" > /dev/null
             echo "$SSH_KEY" | tr -d '\r' | DISPLAY=1 ssh-add - >/dev/null
             mkdir -p ~/.ssh
-            #echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
+            echo "${{ secrets.NIGHTLIES_RSYNC_HOST_KEY }}" >> ~/.ssh/known_hosts
             set -eu
 
             # Variables.
             RSYNC_SWITCHES="-avzrh --update --delete --progress"
-            RSH="ssh -o StrictHostKeyChecking=no -p $PORT"
+            RSH="ssh -p $PORT"
             LOCAL_PATH="$GITHUB_WORKSPACE/$RSYNC_PATH"
             DSN="$USER@$HOST"
 
