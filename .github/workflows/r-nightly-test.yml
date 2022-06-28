@@ -130,11 +130,7 @@ jobs:
           # strip superfluous nested dirs
           new_paths <- sub(art_path, ".", new_paths)
           dirs <- dirname(new_paths)
-          dir_result <- sapply(dirs, dir.create, recursive = TRUE)
-
-          if (!all(dir_result)) {
-            stop("There was an issue while creating the folders!")
-          }
+          sapply(dirs, dir.create, recursive = TRUE, showWarnings = FALSE)
 
           copy_result <- file.copy(current_path, new_paths)
 
