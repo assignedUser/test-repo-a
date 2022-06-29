@@ -21,7 +21,7 @@ name: Upload R Nightly builds
 
 # from the crossbow repository.
 permissions:
-  contents: read
+  contents: none
 on:
   workflow_dispatch:
     inputs:
