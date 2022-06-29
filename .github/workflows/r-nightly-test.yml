@@ -20,7 +20,8 @@ name: Upload R Nightly builds
 # to nightlies.apache.org. Due to authorization requirements, this upload can't be done 
 
 # from the crossbow repository.
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
     inputs:
@@ -60,12 +61,6 @@ jobs:
       - name: Install Archery
         shell: bash
         run: pip install -e arrow/dev/archery[all]
-      - uses: actions/cache@v3
-        with:
-          path: repo
-          key: r-nightly-${{ github.run_id }}
-          restore-key: r-nightly-
-      
       - run: mkdir -p binaries
       - name: Download Artifacts
         env:
