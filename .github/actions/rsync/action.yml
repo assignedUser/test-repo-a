@@ -49,15 +49,16 @@ runs:
         # Make SSH key available and add remote to known hosts
         eval "$(ssh-agent)" > /dev/null
         echo "$SSH_KEY" | tr -d '\r' | ssh-add - >/dev/null
-        chmod go-rwx ~/.ssh
-        mkdir -p ~/.ssh
-        echo "$HOST_KEY" >> ~/.ssh/known_hosts
+
+        mkdir .ssh
+        chmod go-rwx .ssh
+        echo "$HOST_KEY" >> .ssh/known_hosts
 
         # strict errors
         set -eu
 
         # We have to use a custom RSH to supply the port
-        RSH="ssh -p $PORT"
+        RSH="ssh -o UserKnownHostsFile=.ssh/known_hosts -p $PORT"
         DSN="$USER@$HOST"
 
         # It is important to append '/*' to the source path otherwise
