@@ -113,7 +113,7 @@ jobs:
 
             # Deploy. It is important to append '/*' to the source path otherwise
             # the entire source dir will be created as a sub dir in the destination
-            rsync $RSYNC_SWITCHES -e '$RSH' $DSN:$REMOTE_PATH/* $LOCAL_PATH
+            rsync $RSYNC_SWITCHES -e $RSH $DSN:$REMOTE_PATH/* $LOCAL_PATH
       - run: tree repo
       - name: Build Repository
         shell: Rscript {0}
