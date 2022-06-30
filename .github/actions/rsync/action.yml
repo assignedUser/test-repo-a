@@ -1,0 +1,74 @@
+name: 'Sync nightlies'
+description: 'Sync files to and from nightlies.apache.org'
+inputs:
+  upload:
+    description: 'Sync from local to remote'
+    default: false
+    required: false
+  switches:
+    description: 'see rsync --help'
+    required: true
+  local_path:
+    description: 'The relative local path within $GITHUB_WORKSPACE'
+    required: true
+  remote_path:
+    description: 'The remote path incl. sub dirs e.g. {{secrets.path}}/arrow/r'
+    required: true
+  remote_host:
+    description: 'The remote host'
+    required: true
+  remote_port:
+    description: 'The remote port'
+    required: false
+    default: 22
+  remote_user:
+    description: 'The remote user'
+    required: true
+  remote_key:
+    description: 'The remote key'
+    required: true
+  remote_host_key:
+    description: 'The host key fot Stricthostkeychecking'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Sync files
+      shell: bash
+      env:
+          SWITCHES: "${{ inputs.switches }}"
+          LOCAL_PATH: "${{ github.workspace}}/${{ inputs.local_path }}"
+          SSH_KEY: "${{ inputs.remote_key }}"
+          PORT: "${{ inputs.remote_port }}"
+          USER: "${{ inputs.remote_user }}"
+          HOST: "${{ inputs.remote_host }}"
+          HOST_KEY: "${{ inputs.remote_host_key }}"
+          REMOTE_PATH: "${{ inputs.remote_path }}"
+      run: |
+        # Make SSH key available and add remote to known hosts
+        eval "$(ssh-agent)" > /dev/null
+        echo "$SSH_KEY" | tr -d '\r' | ssh-add - >/dev/null
+        chmod go-rwx ~/.ssh
+        mkdir -p ~/.ssh
+        echo "$HOST_KEY" >> ~/.ssh/known_hosts
+
+        # strict errors
+        set -eu
+
+        # We have to use a custom RSH to supply the port
+        RSH="ssh -p $PORT"
+        DSN="$USER@$HOST"
+
+        # It is important to append '/*' to the source path otherwise
+        # the entire source dir will be created as a sub dir in the destination
+        if [ "${{ inputs.upload }}" = true ]
+        then
+          SOURCE=$LOCAL_PATH/*
+          DEST=$DSN:$REMOTE_PATH
+        else
+          SOURCE=$DSN:$REMOTE_PATH/*
+          DEST=$LOCAL_PATH
+        fi
+
+        rsync $SWITCHES --rsh="$RSH" $SOURCE $DEST
