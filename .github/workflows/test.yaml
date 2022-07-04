@@ -6,7 +6,7 @@ on:
   
 jobs:
   test:
-    runs-on: ubuntu
+    runs-on: X64
     steps:
       - run: echo test
         shell: bash
