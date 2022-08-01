@@ -17,7 +17,7 @@ jobs:
       - name: Test
         shell: Rscript {0}
         run: |
-          install.packages("arrow", repos = c("https://nightlies.apache.org/arrow/r", getOption("repos"), type = "mac.binary"))
+          install.packages("arrow", repos = c("https://nightlies.apache.org/arrow/r", getOption("repos"), type = "binary"))
           
           packageVersion("arrow")
           arrow::arrow_info()
