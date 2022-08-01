@@ -9,8 +9,12 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-     - name: Get sccache
-       shell: bash
-       run: free -h
+      - name: Test
+        shell: Rscript {0}
+        run: |
+          install.packages("arrow", repos = c("https://nightlies.apache.org/arrow/r", getOption("repos"), type = "mac.binary")
+          
+          packageVersion("arrow")
+          arrow::arrow_info()
