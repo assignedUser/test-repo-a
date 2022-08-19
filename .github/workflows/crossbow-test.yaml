@@ -9,8 +9,15 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo ':open_book: You can find the preview here https://crossbow.voltrondata.com/pr_docs/13913' >> $GITHUB_STEP_SUMMARY
-
+      - uses: actions/github-script@v5
+        with:
+          script: |
+            await github.issues.createComment({
+              owner: "apache",
+              repo: "arrow",
+              issue_number: 13913,
+              body: "This is a test:\n" + 
+                ":open_book: You can find the preview here https://crossbow.voltrondata.com/pr_docs/13913"
+            });
