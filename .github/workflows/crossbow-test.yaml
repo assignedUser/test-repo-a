@@ -11,5 +11,6 @@ jobs:
   r-packages:
     runs-on: macos-latest
     steps:
-      - run: echo yes
-        if: "!contains('windows','macos')"
+      - run: |
+          echo ':open_book: You can find the preview here https://crossbow.voltrondata.com/pr_docs/13913' >> $GITHUB_STEP_SUMMARY
+
