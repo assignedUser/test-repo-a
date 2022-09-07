@@ -11,13 +11,4 @@ jobs:
   r-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v5
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: "apache",
-              repo: "arrow",
-              issue_number: 13913,
-              body: "This is a test:\n" + 
-                ":open_book: You can find the preview here https://crossbow.voltrondata.com/pr_docs/13913"
-            });
+      - run: echo "Done!"
