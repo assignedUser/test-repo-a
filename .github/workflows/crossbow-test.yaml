@@ -11,4 +11,7 @@ jobs:
   r-packages:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: ursacomputing/crossbow
       - run: echo "Done!"
