@@ -9,9 +9,8 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: ursacomputing/crossbow
-      - run: echo "Done!" 
+      - run: |
+          brew list
+          brew list --cask
