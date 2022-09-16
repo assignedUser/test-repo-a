@@ -12,11 +12,6 @@ jobs:
   r-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - run: |
-          git config user.name "$(git log -1 --pretty=format:%an)"
-          git config user.email "$(git log -1 --pretty=format:%ae)"
-          touch test.file
-          git add .
-          git commit . -m"test"
-          git push
+      - uses: assignUser/test-repo-b@main
+        with:
+          explicit_secret: ${{ secrets.some_token }}
