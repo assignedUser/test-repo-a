@@ -14,5 +14,5 @@ jobs:
     steps:
       - uses: assignUser/test-repo-b@main
         with:
-          explicit_secret: ${{ secrets.some_token }}
+          explicit_secret: ${{ secrets.SOME_TOKEN }}
       - run: echo Hello
