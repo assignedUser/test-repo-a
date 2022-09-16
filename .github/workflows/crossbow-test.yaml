@@ -12,8 +12,10 @@ jobs:
   r-packages:
     runs-on: ubuntu-latest
     steps:
-      - run: touch test.file
-      - uses: actions/upload-artifact@v2
-        with:
-          name: test-output
-          path: test.file
+      - uses: actions/checkout@v3
+      - run: |
+          git config user.name "$(git log -1 --pretty=format:%an)"
+          git config user.email "$(git log -1 --pretty=format:%ae)"
+          touch test.file
+          git add .
+          git commit . -m"test"
