@@ -12,10 +12,13 @@ on:
 
 permissions:
   contents: read
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.repository }}-${{ github.event.number }}
+  cancel-in-progress: true
 jobs:        
   r-packages:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          sleep 5
           echo "${{ github.event.number }}"
