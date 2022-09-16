@@ -5,12 +5,15 @@ on:
     paths:
       - .github/workflows/crossbow-test.yaml
 
-
+permissions:
+  contents: none
 
 jobs:        
   r-packages:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - run: |
-          brew list
-          brew list --cask
+      - run: touch test.file
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-output
+          path: test.file
