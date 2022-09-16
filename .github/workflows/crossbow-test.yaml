@@ -6,7 +6,7 @@ on:
       - .github/workflows/crossbow-test.yaml
 
 permissions:
-  contents: none
+  contents: read
 
 jobs:        
   r-packages:
