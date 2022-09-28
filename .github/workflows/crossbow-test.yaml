@@ -14,8 +14,8 @@ jobs:
           echo $(which gzip)
           brew install pigz
           echo $(which pigz)
-          ln -s /usr/bin/pigz /usr/local/bin/gzip
-          ln -s /usr/bin/unpigz /usr/local/bin/gunzip
+          ln -s /usr/bin/pigz /usr/bin/gzip
+          ln -s /usr/bin/unpigz /usr/bin/gunzip
           echo $(which gzip)
           brew install llvm@15
     #  - uses: actions/checkout@v3
