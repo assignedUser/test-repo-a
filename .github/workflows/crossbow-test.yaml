@@ -14,6 +14,10 @@ jobs:
           echo $(which gzip)
           brew install pigz
           echo $(which pigz)
+          ln -s /usr/bin/pigz /usr/local/bin/gzip
+          ln -s /usr/bin/unpigz /usr/local/bin/gunzip
+          echo $(which gzip)
+          brew install llvm@15
     #  - uses: actions/checkout@v3
     #    with:
     #      repository: apache/arrow
