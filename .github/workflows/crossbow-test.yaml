@@ -9,20 +9,24 @@ jobs:
   r-packages:
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: apache/arrow
-          depth: 1
-      - name: Install Homebrew Dependencies
-        shell: bash
-        run: |
-          rm -f /usr/local/bin/2to3
-          brew update --preinstall
-          brew install --overwrite git
-          echo $(brew --cache)
-      - name: test brew
-        run: |
-          brew bundle -vd --file=cpp/Brewfile
-          brew bundle -vd --file=c_glib/Brewfile
+      - run: |
+          echo $(which tar)
+          echo $(which gzip)
+          brew install pigz
+    #  - uses: actions/checkout@v3
+    #    with:
+    #      repository: apache/arrow
+    #      depth: 1
+    #  - name: Install Homebrew Dependencies
+    #    shell: bash
+   #     run: |
+    #      rm -f /usr/local/bin/2to3
+    #      brew update --preinstall
+     ##     brew install --overwrite git
+      #    echo $(brew --cache)
+      #- name: test brew
+      #  run: |
+      #    brew bundle -vd --file=cpp/Brewfile
+      #    brew bundle -vd --file=c_glib/Brewfile
         
 
