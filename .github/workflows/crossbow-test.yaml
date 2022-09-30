@@ -7,33 +7,15 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: macos-11
+    runs-on: ubuntu-latest
+    env:
+      dts: 8
     steps:
-      - run: |
-          brew install pigz
-          ln -s /usr/bin/pigz /usr/local//bin/gzip
-          ln -s /usr/bin/unpigz /usr/local/bin/gunzip
-          brew install llvm@15
-  r-packages2:
-    runs-on: macos-11
-    steps:
-      - run: |
-          brew install pigz
-          brew install llvm@15
-    #  - uses: actions/checkout@v3
-    #    with:
-    #      repository: apache/arrow
-    #      depth: 1
-    #  - name: Install Homebrew Dependencies
-    #    shell: bash
-   #     run: |
-    #      rm -f /usr/local/bin/2to3
-    #      brew update --preinstall
-     ##     brew install --overwrite git
-      #    echo $(brew --cache)
-      #- name: test brew
-      #  run: |
-      #    brew bundle -vd --file=cpp/Brewfile
-      #    brew bundle -vd --file=c_glib/Brewfile
-        
-
+      - run: echo dts
+        if: env.dts > 0
+      - run: echo dts
+        if: env.dts
+      - run: echo dts
+        if: env.dvt > 0
+      - run: echo dts
+        if: env.dvt
