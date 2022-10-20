@@ -7,8 +7,6 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: macos-11
-    env:
-      dts: 8
+    runs-on: macos-latest
     steps:
-      - run: brew install sccache
+      - run: brew install numpy
