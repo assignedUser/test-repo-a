@@ -9,4 +9,31 @@ jobs:
   r-packages:
     runs-on: macos-latest
     steps:
-      - run: brew install numpy
+      - shell: brew bundle --file={0}
+        run: |
+          brew "automake"
+          brew "aws-sdk-cpp"
+          brew "bash"
+          brew "boost"
+          brew "brotli"
+          brew "c-ares"
+          brew "ccache"
+          brew "cmake"
+          brew "flatbuffers"
+          brew "git"
+          brew "glog"
+          brew "googletest"
+          brew "grpc"
+          brew "llvm@14"
+          brew "lz4"
+          brew "ninja"
+          brew "numpy"
+          brew "openssl@1.1"
+          brew "protobuf"
+          brew "python"
+          brew "rapidjson"
+          brew "snappy"
+          brew "thrift"
+          brew "wget"
+          brew "xsimd"
+          brew "zstd"
