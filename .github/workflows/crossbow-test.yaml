@@ -9,4 +9,4 @@ jobs:
   r-packages:
     runs-on: ubuntu-latest
     steps:
-      - run: echo busybox detected
+      - run: command -v busybox
