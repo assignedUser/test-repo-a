@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: | 
-          mkdir ~/.local/share/bbsBayes
+          mkdir -p ~/.local/share/bbsBayes
