@@ -7,8 +7,7 @@ on:
 
 jobs:        
   r-packages:
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
       - run: | 
-          brew install sccache
-          which sccache
+          mkdir ~/.local/share/bbsBayes
