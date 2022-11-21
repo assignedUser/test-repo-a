@@ -13,46 +13,46 @@ body:
       label: Describe the feature requested.
     validations:
       required: true
-  - type: dropdown
+  - type: checkboxes
     id: component
     attributes:
       label: Component
       description: Which component does the feature most apply to?
       options:
-        - Archery
-        - Benchmarking
-        - C
-        - C#
-        - C++
-        - C++ - Gandiva
-        - C++ - Plasma
-        - Compute IR
-        - Continuous Integration
-        - Dart
-        - Developer Tools
-        - Documentation
-        - FlightRPC
-        - Format
-        - GLib
-        - Go
-        - GPU
-        - Integration
-        - Java
-        - JavaScript
-        - Julia
-        - MATLAB
-        - Packaging
-        - Parquet
-        - Python
-        - R
-        - Ruby
-        - Rust
-        - Rust - Ballista
-        - Rust - DataFusion
-        - SQL
-        - Swift
-        - Website
-        - Wiki
-        - Other
+        - label: Archery
+        - label: Benchmarking
+        - label: C
+        - label: C#
+        - label: C++
+        - label: C++ - Gandiva
+        - label: C++ - Plasma
+        - label: Compute IR
+        - label: Continuous Integration
+        - label: Dart
+        - label: Developer Tools
+        - label: Documentation
+        - label: FlightRPC
+        - label: Format
+        - label: GLib
+        - label: Go
+        - label: GPU
+        - label: Integration
+        - label: Java
+        - label: JavaScript
+        - label: Julia
+        - label: MATLAB
+        - label: Packaging
+        - label: Parquet
+        - label: Python
+        - label: R
+        - label: Ruby
+        - label: Rust
+        - label: Rust - Ballista
+        - label: Rust - DataFusion
+        - label: SQL
+        - label: Swift
+        - label: Website
+        - label: Wiki
+        - label: Other
     validations:
       required: true
