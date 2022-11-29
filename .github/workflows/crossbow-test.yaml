@@ -1,6 +1,5 @@
 name: Dev PR
 on:
-  pull_request:
   workflow_dispatch:
   push:
     paths:
@@ -16,6 +15,7 @@ jobs:
       - run: git rev-parse HEAD 
       - run: sleep 120
   step2:
+    needs: step1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
