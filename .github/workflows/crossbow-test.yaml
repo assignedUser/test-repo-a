@@ -6,8 +6,19 @@ on:
       - .github/workflows/crossbow-test.yaml
 
 jobs:        
-  r-packages:
+  step1:
     runs-on: ubuntu-latest
     steps:
-      - run: | 
-          mkdir -p ~/.local/share/bbsBayes
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - run: git rev-parse HEAD 
+      - run: sleep 120
+  step2:
+    needs: step1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - run: git rev-parse HEAD 
