@@ -13,13 +13,13 @@ jobs:
       - restore_cache:
           name: Restore Dependencies
           keys: 
-            - cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "test.sh" }}
+            - velox-ccache-debug-{{ arch }}-{{ checksum "file" }}
       - run:
           command: bash test.sh
           name: Do things
       - save_cache:
           name: Save Dependencies
-          key: cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "test.sh" }}
+          key: velox-ccache-debug-{{ arch }}-{{ checksum "file" }}
           paths:
             - test.R # this would of course be the homebrew cache or w/e
 
