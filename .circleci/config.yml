@@ -12,8 +12,7 @@ jobs:
       - checkout
       - save_cache:
           name: Save Dependencies
-          # get valid key from default branch
-          key: a-{{ checksum "merge-base-date" }}
+          key:  velox-ccache-debug-{{ arch }}-{{ checksum "20230101" }}
           paths:
             - test.sh
 
