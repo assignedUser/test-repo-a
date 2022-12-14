@@ -13,7 +13,7 @@ jobs:
       - save_cache:
           name: Save Dependencies
           # get valid key from default branch
-          key: a{{ "merge-base-date" }}
+          key: a-{{ checksum "merge-base-date" }}
           paths:
             - test.sh
 
