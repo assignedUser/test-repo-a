@@ -1,16 +1,24 @@
-name: Crossbow
+name: Dev PR
 on:
   workflow_dispatch:
   push:
     paths:
       - .github/workflows/crossbow-test.yaml
 
-
-
 jobs:        
-  r-packages:
+  step1:
     runs-on: ubuntu-latest
     steps:
-     - name: Get sccache
-       shell: bash
-       run: free -h
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - run: git rev-parse HEAD 
+      - run: sleep 120
+  step2:
+    needs: step1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - run: git rev-parse HEAD 
