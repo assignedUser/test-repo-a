@@ -12,7 +12,7 @@ jobs:
       - checkout
       - save_cache:
           name: Save Dependencies
-          key:  velox-ccache-debug-{{ arch }}-{{ checksum "20230101" }}
+          key:  velox-ccache-debug-{{ arch }}-{{ checksum "file" }}
           paths:
             - test.sh
 
