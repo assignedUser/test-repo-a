@@ -9,8 +9,10 @@ jobs:
   step1:
     runs-on: ubuntu-latest
     steps:
+      - run: echo "del_prs=1 2 3" >> $GITHUB_OUTPUT
+        id: test
       - env:
-          pr_ids: (1 2 3)
+          pr_ids: ${{ steps.test.outputs.del_prs }}
         run: |
           for id in ${pr_ids[@]}
           do
