@@ -13,6 +13,7 @@ jobs:
         id: test
       - env:
           pr_ids: ${{ steps.test.outputs.del_prs }}
+          
         run: |
           for id in "${pr_ids[@]}"
           do
