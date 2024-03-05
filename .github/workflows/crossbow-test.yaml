@@ -10,5 +10,5 @@ jobs:
   step1:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ github.head_ref }}
+      - run: echo ${{ toJSON(github.event) }}
         id: test
