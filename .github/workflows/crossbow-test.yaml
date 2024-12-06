@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{ toJSON(github.event) }}
-        id: test2
+        id: test
